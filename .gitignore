@@ -1,0 +1,10 @@
+.DS_Store
+.env
+node_modules/
+bower_components/
+local/cache/*
+local/storage/*
+local/temp/*
+installer.php
+_res/*
+_theme/*

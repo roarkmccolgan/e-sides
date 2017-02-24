@@ -1,0 +1,28 @@
+<section class="bg--dark">
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-12">
+				<h1>Articles</h1>
+			</div>
+		</div>
+	</div>
+</section>
+<section class="bg--dark">
+	<div class="container">
+		<div class="row">
+		{{ collection:articles paginate="true" as="posts" limit="6" }}
+			{{ posts }}
+				<div class="col-sm-4">
+					{{ partial:block }}
+				</div>
+			{{ /posts }}
+			{{ partial:pagination }}
+		{{ /collection:articles }}
+		</div>
+	</div>
+</section>
+
+{{ section:page_scripts }}
+    <script src="articles.js"></script>
+    <script id="dsq-count-scr" src="//e-sides.disqus.com/count.js" async></script>
+{{ /section:page_scripts }}

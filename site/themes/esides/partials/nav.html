@@ -1,0 +1,50 @@
+<div class="nav-container"><div class="via-1487243297146" via="via-1487243297146" vio="eSides">
+	<nav class="bar bar-toggle bg--dark">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-2 col-sm-3 col-xs-4">
+					<div class="bar__module">
+						<a href="index.html">
+							<img class="logo logo-light" alt="logo" src="{{ theme:asset src="img/esides_logo_dark.png" }}">
+						</a>
+					</div>
+				</div>
+				<div class="col-md-10 col-sm-9 col-xs-8">
+					<div class="bar__module">
+						<a class="menu-toggle pull-right" href="#" data-notification-link="sidebar-menu">
+							<i class="stack-interface stack-menu"></i>
+						</a>
+					</div>
+				</div>    
+			</div>
+		</div>
+	</nav>
+
+	<div class="notification pos-right pos-top side-menu bg--white" data-notification-link="sidebar-menu" data-animation="from-right">
+		<div class="side-menu__module pos-vertical-center text-right">
+			<ul class="menu-vertical">
+				{{ nav from="/" include_home="true" scope="tag" }}
+				<li class="h4 {{ if is_current or is_parent }}active{{ /if }}">
+					<a href="{{ url }}">{{ tag:nav_title or title }}</a>
+				</li>
+				{{ /nav }}
+			</ul>
+		</div>
+		<div class="side-menu__module pos-bottom pos-absolute col-xs-12 text-right">
+			<ul class="social-list list-inline list--hover">
+				{{ if logged_in }}
+					<a href="{{ user:logout_url }}">logout</a>
+				{{ else }}
+					<li><a href="{{ link to='login' }}"><i class="socicon icon icon-Lock-User"></i></a></li>
+					<li><a href="{{ link to='register' }}"><i class="socicon icon icon-Pencil"></i> Register</a></li>
+				{{ /if }}
+			</ul>
+		</div>
+	</div>
+</div>
+
+
+
+
+
+</div>

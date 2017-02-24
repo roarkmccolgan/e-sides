@@ -1,0 +1,10 @@
+driver: mailgun
+from_email: webmaster@e-sides.eu
+from_name: Website Administrator
+port: 587
+encryption: tls
+username: ""
+password: ""
+mandrill_secret: ""
+mailgun_secret: key-1cb5975b9babdb173e4a871619399eab
+mailgun_domain: mg.e-sides.eu

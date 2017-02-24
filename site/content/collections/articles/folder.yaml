@@ -1,0 +1,4 @@
+title: Articles
+order: date
+fieldset: article
+template: articles/article

@@ -1,0 +1,30 @@
+<article class="feature feature-1">
+	
+	{{ if image }}
+	<a href="{{ url }}" class="block">
+		{{ assets:image }}
+			<img src="{{ glide:url width='750' fit='crop' }}" />
+		{{ /assets:image }}
+	</a>
+	{{ /if }}
+	
+	<div class="feature__body boxed boxed--border">
+		<span>
+			{{ if (date | days_ago) < 21 }}
+				{{ date | relative }}
+			{{ elseif (date | format:Y) == now | format:Y }}
+				{{ date format="M j" }}
+			{{ else }}
+				{{ date format="M j, Y" }}
+			{{ /if }}
+		</span>
+		<h5>{{ title }}</h5>
+		<!--p>
+			{{ content strip_tags="img|a|p" safe_truncate="210" ensure_right="..." }}
+		</p-->
+		<a href="{{ url }}">
+			Read More
+		</a>
+	</div>
+	<div class="count disqus-comment-count" data-disqus-url="{{ url }}"></div>
+</article>

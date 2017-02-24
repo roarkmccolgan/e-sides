@@ -1,0 +1,33 @@
+<section class="cover height-80 imagebg text-center slider slider--ken-burns" data-arrows="true" data-paging="true">
+	<ul class="slides">
+		{{ collection:slides }}
+		<li class="imagebg" data-overlay="4">
+			<div class="background-image-holder background--top">
+				<img alt="background" src="{{ image:0 }}">
+			</div>
+			<div class="container pos-vertical-center">
+				<div class="row">
+					<div class="col-sm-12">
+						<h1 style="margin: 0">
+							{{ title }}
+						</h1>
+						{{ if sub_title}}
+						<h4>{{ sub_title }}</h4><br/>
+						{{ /if }}
+						{{ if button.btn-link && button.btn-text}}
+						<a class="btn btn--primary type--uppercase" href="{{ button.btn-link }}">
+							<span class="btn__text">
+								{{ button.btn-text }}
+							</span>
+						</a>
+						{{ /if }}
+					</div>
+				</div>
+			</div>
+		{{ /collection:slides }}
+	</ul>
+</section>
+
+{{ section:page_scripts }}
+<script src="{{ theme:js src="home.js" }}"></script>
+{{ /section:page_scripts }}

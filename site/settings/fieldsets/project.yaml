@@ -1,0 +1,36 @@
+taxonomies:
+  categories: true
+title: Project
+create_title: Add Project Details
+fields:
+  title:
+    type: title
+    display: Title
+    validate: required
+  sub_title:
+    type: text
+    display: Sub Title
+  avatar:
+    type: assets
+    display: "Author's Avatar"
+    container: main
+    folder: avatars
+    restrict: true
+    max_files: "1"
+  author:
+    type: text
+    display: Author
+  content:
+    type: markdown
+    display: Content
+    cheatsheet: true
+    container: main
+    folder: /
+    restrict_assets: false
+  hero_image:
+    type: assets
+    display: Hero Image
+    container: main
+    folder: /
+    restrict: false
+    max_files: "1"

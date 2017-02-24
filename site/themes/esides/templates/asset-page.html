@@ -1,0 +1,40 @@
+<section class="switchable feature-large bg--dark">
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-6 col-md-5">
+				<div class="switchable__text">
+					<h2>Project Assets</h2>
+					<p class="lead">Feel free to download and view all research related materials, video, Infographics and presentations used and created during the execution of this project.</p>
+				</div>
+			</div>
+			<div class="col-sm-6">
+				<div class="boxed boxed--lg boxed--border">
+					{{ collection:collection-assets paginate="true" as="assets" limit="10" }}
+						{{ assets }}
+						<div class="feature feature-2">
+							<a href="{{ download file='url' }}">
+								<i class="icon color--primary {{ type }}"></i>
+								<div class="feature__body">
+									<h5>{{ title }}</h5>
+									<p>{{ description }}</p>
+								</div>
+							</a>
+						</div>
+						{{ /assets }}
+						{{ partial:pagination }}
+					{{ /collection:collection-assets }}
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+<section class="text-center cta cta-4 space--xxs border--bottom bg--dark">
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-12">
+				<span class="label label--inline">Notice!</span>
+				<span>All content provided is open to the public, please do not edit and re-distribute.</span>
+			</div>  
+		</div>
+	</div>
+</section>

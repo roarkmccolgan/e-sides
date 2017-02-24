@@ -1,0 +1,29 @@
+taxonomies: false
+title: Download
+create_title: Create new download
+fields:
+  title:
+    type: title
+    display: Title
+  description:
+    type: text
+    display: Description
+  type:
+    type: select
+    display: Type
+    options:
+      icon-File-Word: Word Doc
+      icon-File-Excel: Excel Doc
+      icon-Video-3: Video
+      icon-File-JPG: JPEG
+      icon-File-Pictures: Image
+      icon-File-Presentation: PowerPoint
+      icon-File: File
+    default: icon-File
+  asset:
+    type: assets
+    display: asset
+    container: main
+    folder: /
+    restrict: false
+    max_files: "1"

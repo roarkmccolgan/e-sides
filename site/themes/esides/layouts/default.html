@@ -1,0 +1,42 @@
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title ensure_right=" / " }}{{ site_name }}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="e-Sides Project">
+
+        <link href="{{ theme:css src="stack-interface" }}" rel="stylesheet" type="text/css" media="all">
+        <link href="{{ theme:css src="socicon" }}" rel="stylesheet" type="text/css" media="all">
+        <link href="{{ theme:css src="iconsmind" }}" rel="stylesheet" type="text/css" media="all" />
+        <link href="{{ theme:css src="bootstrap" }}" rel="stylesheet" type="text/css" media="all" />
+        <link href="{{ theme:css src="stack-interface" }}" rel="stylesheet" type="text/css" media="all" />
+        <link href="{{ theme:css src="socicon" }}" rel="stylesheet" type="text/css" media="all" />
+        <link href="{{ theme:css src="lightbox.min" }}" rel="stylesheet" type="text/css" media="all" />
+        <link href="{{ theme:css src="flickity" }}" rel="stylesheet" type="text/css" media="all" />
+        <link href="{{ theme:css src="theme-serpent" }}" rel="stylesheet" type="text/css" media="all" />
+        <link href="{{ theme:css src="custom" }}" rel="stylesheet" type="text/css" media="all" />
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:200,300,400,400i,500,600,700" rel="stylesheet">     
+    </head>
+    <body data-smooth-scroll-offset="77">
+				
+		{{ partial:nav }}
+
+		<div class="main-container">
+			{{ template_content }} <!-- <section class="bg--dark"> -->
+			
+			{{ partial:footer }}
+		</div>
+		
+				
+        <script src="{{ theme:js src="jquery-3.1.1.min" }}"></script>
+        <script src="{{ theme:js src="flickity.min.js" }}"></script>
+        <script src="{{ theme:js src="parallax" }}"></script>
+        <script src="{{ theme:js src="countdown.min" }}"></script>
+        <script src="{{ theme:js src="smooth-scroll.min" }}"></script>
+        <script src="{{ theme:js src="scripts" }}"></script>
+        {{ yield:page_scripts }}
+    </body>
+</html>
+				

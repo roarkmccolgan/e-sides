@@ -1,0 +1,32 @@
+taxonomies:
+  categories: true
+  tags: true
+title: Article
+create_title: Create New Article
+fields:
+  title:
+    type: title
+    display: Title
+  author_name:
+    type: text
+    display: Author Name
+  content:
+    type: markdown
+    display: Content
+    cheatsheet: true
+    container: main
+    folder: /
+    restrict_assets: false
+  date:
+    type: date
+    display: Date
+    allow_blank: false
+    allow_time: false
+    earliest_date: January 1, 1900
+  image:
+    type: assets
+    display: Image
+    container: main
+    folder: /
+    restrict: false
+    max_files: "1"

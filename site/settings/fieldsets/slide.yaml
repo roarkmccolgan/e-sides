@@ -1,0 +1,23 @@
+taxonomies: false
+title: Slides
+create_title: Add another slide to the homepage
+fields:
+  title:
+    type: title
+    display: Title
+  sub_title:
+    type: text
+    display: Sub Title
+  image:
+    type: assets
+    display: Image
+    container: main
+    folder: slides
+    restrict: true
+    max_files: "1"
+  button:
+    type: array
+    display: button
+    keys:
+      btn-link: Link
+      btn-text: Text
