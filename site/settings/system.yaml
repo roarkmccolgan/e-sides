@@ -1,6 +1,45 @@
-app_key: 9lpwTZP23B1rt5uEc83toV2T3lvr7WSI
+license_key: 78add842-6498-4704-b837-4eccf7e6c25e
 locales:
   en:
     full: en_US
     name: English
     url: http://dev.e-sides.eu/
+timezone: UTC
+date_format: F jS, Y
+default_extension: md
+filesystems:
+  content:
+    driver: local
+    root: site/content
+  storage:
+    driver: local
+    root: site/storage
+  users:
+    driver: local
+    root: site/users
+  themes:
+    driver: local
+    root: site/themes
+    url: /site/themes
+app_key: 9lpwTZP23B1rt5uEc83toV2T3lvr7WSI
+redactor:
+  - 
+    name: Standard
+    settings:
+      buttons:
+        - formatting
+        - bold
+        - italic
+        - link
+        - unorderedlist
+        - orderedlist
+        - html
+  - 
+    name: Basic
+    settings:
+      buttons:
+        - bold
+        - italic
+csrf_exclude: [ ]
+send_powered_by_header: true
+ensure_unique_ids: true
