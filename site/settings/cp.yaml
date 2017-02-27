@@ -1,12 +1,15 @@
+start_page: dashboard
+date_format: Y/n/d
+pagination_size: 25
 widgets:
-  -
+  - 
     type: collection
-    collection: blog
+    collection: articles
     limit: 5
     importance: 3
-  -
+  - 
     type: updater
-  -
+  - 
     type: form
     form: contact
     limit: 5

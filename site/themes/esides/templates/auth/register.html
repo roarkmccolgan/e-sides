@@ -1,0 +1,44 @@
+<section class="height-100 imagebg text-center" data-overlay="4">
+	<div class="background-image-holder"><img alt="background" src="{{theme:asset src="img/agency-1.jpg"}}"></div>
+	<div class="container pos-vertical-center">
+		<div class="row">
+			<div class="col-sm-7 col-md-5">
+			<h2>Register</h2>
+				{{ if errors }}
+				<div class="alert alert-danger">
+					{{ errors }}
+					{{ value }}<br>
+					{{ /errors }}
+				</div>
+				{{ /else }}
+				<p class="lead">
+					Welcome back, sign in with your account credentials
+				</p>
+				{{ /if }}
+				{{ user:register_form redirect="/account" }}
+				<div class="row">
+					<div class="col-sm-12">
+						<!-- <label>Username</label> -->
+						<input type="text" name="username" value="{{ old:username }}" placeholder="Username" />
+					</div>
+					<div class="col-sm-12">
+						<!-- <label>Email</label> -->
+						<input type="email" name="email" value="{{ old:email }}" placeholder="Email" />
+					</div>
+					<div class="col-sm-12">
+						<!-- <label>Password</label> -->
+						<input type="password" name="password" value="{{ old:password }}" placeholder="Password" />
+					</div>
+					<div class="col-sm-12">
+						<!-- <label>Password Confirmation</label> -->
+						<input type="password" name="password_confirmation" value="" placeholder="Confirm Password" />
+					</div>
+					<div class="col-sm-12">
+						<button class="btn btn--primary type--uppercase" type="submit">Register</button>
+					</div>
+				</div>
+				{{ /user:register_form }}
+			</div>
+		</div>
+	</div>
+</section>

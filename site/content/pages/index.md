@@ -1,6 +1,7 @@
 ---
-title: Home
-template: home
+title: Landing
+template: landing
+layout: blank
 list:
   - of
   - things
