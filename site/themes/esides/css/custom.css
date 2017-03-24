@@ -1,1 +1,67 @@
-/*! Place your custom styles here */
+.footer--sticky{ position: fixed; bottom: 0; left: 0; width: 100%; z-index: 99; }
+html{
+	background-color: #252525;
+}
+.bg--dark:not(.nav-bar):not(.bar) p strong {
+    color: #ffffff;
+}
+.share{
+	padding-bottom: 20em;
+}
+.radial .radial__label {
+	text-align: center;
+}
+
+.phase {
+	border: 1px solid #ececec;
+	border-color: #3f3f3f;
+	border-radius: 6px;
+}
+.phase ul{
+	margin-left: 1.3em;
+	list-style: disc outside none;
+}
+.front .wrapper{
+	display: table-cell;
+	vertical-align: middle;
+}
+.bg--dark .phase:not([class*='bg-']).phase--border, .imagebg:not(.image--light) .phase:not([class*='bg-']).phase--border {
+    border-color: #3f3f3f;
+}
+.bg--dark .phase:not([class*='bg-']), .imagebg:not(.image--light) .phase:not([class*='bg-']) {
+    background: none;
+    color: #fff;
+}
+
+.objectivel:after{
+	display: none;
+	position: absolute;
+	overflow: hidden;
+	content: " ";
+	width: 0;
+	top: 100%;
+	height: 25%;
+	left: 50%;
+	border-right: 1px solid #FFF;
+}
+.objectivel.done:after{
+	display: inline-block;
+}
+
+@media (min-width: 768px) {
+	.objectivel:after{
+		height: 0;
+		top: 50%;
+		width: 65%;
+		left: 100%;
+		border-top: 1px solid #FFF;
+	}
+}
+.active_phase{
+	width: 100%;
+	border-radius: 6px;
+	border: 1px solid #ececec;
+	border-color: #3f3f3f;
+}
+.grow { transition: all .2s ease-in-out; }
+.grow:hover { transform: scale(1.1); }

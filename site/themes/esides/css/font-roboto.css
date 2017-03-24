@@ -14,3 +14,11 @@ h1,h2,h3,h4,h5,h6,
 .h1,.h2,.h3,.h4,.h5,.h6{
   font-family: 'Roboto','Helvetica', sans-serif;
 }
+
+h5{
+	font-weight: 500;
+}
+
+.bar-1 .menu-horizontal>li>.dropdown__trigger, .bar-1 .menu-horizontal>li>a{
+	font-weight: 500;
+}

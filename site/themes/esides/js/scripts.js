@@ -174,6 +174,22 @@ mr = (function (mr, $, window, document){
 
 }(mr, jQuery, window, document));
 
+//////////////// Window Functions
+mr = (function (mr, $, window, document){
+    "use strict";
+
+    mr.window = {};
+    mr.window.height = $(window).height();
+    mr.window.width = $(window).width();
+
+    $(window).on('resize',function(){
+        mr.window.height = $(window).height();
+        mr.window.width = $(window).width();
+    });
+
+    return mr;
+}(mr, jQuery, window, document));
+
 
 //////////////// Scroll Functions
 mr = (function (mr, $, window, document){
@@ -501,6 +517,21 @@ mr = (function (mr, $, window, document){
 
 }(mr, jQuery, window, document));
 
+//////////////// Datepicker
+mr = (function (mr, $, window, document){
+    "use strict";
+
+    var documentReady = function($){
+        if($('.datepicker').length){
+            $('.datepicker').pickadate();
+        }
+    };
+
+    mr.components.documentReady.push(documentReady);
+    return mr;
+
+}(mr, jQuery, window, document));
+
 //////////////// Dropdowns
 mr = (function (mr, $, window, document){
     "use strict";
@@ -649,12 +680,44 @@ mr = (function (mr, $, window, document){
 
         //////////////// Radio Buttons
 
-        $('.input-radio').on('click', function() {
-            var radio = $(this);
-            radio.closest('form').find('.input-radio').removeClass('checked');
-            radio.addClass('checked').find('input').prop('checked', true);
+        $('.input-radio').on('click', function(e) {
+            if ($(e.target).is('input')){return;}
+            var radio = $(this),
+                name  = radio.find('input[type=radio]').attr('name');
+
+            radio.closest('form').find('[type=radio][name='+name+']').each(function(){
+                $(this).parent().removeClass('checked');
+            });
+            radio.addClass('checked').find('input').click().prop('checked', true);
             return false;
         });
+
+        //////////////// Number Inputs
+
+        $('.input-number__controls > span').on('click',function(){
+            var control = jQuery(this),
+                parent   = control.closest('.input-number'),
+                input    = parent.find('input[type="number"]'),
+                max      = input.attr('max'),
+                min      = input.attr('min'),
+                step     = 1,
+                current  = parseInt(input.attr('value'),10);
+
+            if(parent.is('[data-step]')){
+                step = parseInt(parent.attr('data-step'),10);
+            }
+
+            if(control.hasClass('input-number__increase')){
+                if((current+step) <= max){
+                    input.attr('value',current+step);
+                }
+            }else{
+                if((current-step) >= min){
+                    input.attr('value',current-step);
+                }
+            }
+        });
+
 
         //////////////// File Uploads
 
@@ -860,7 +923,7 @@ mr = (function (mr, $, window, document){
             }
         });
 
-        $(form).find('.validate-required, .required, [required]').not('input[type="checkbox"]').each(function() {
+        form.find('.validate-required, .required, [required]').not('input[type="checkbox"]').each(function() {
             if ($(this).val() === '') {
                 $(this).addClass('field-error');
                 error = 1;
@@ -869,8 +932,17 @@ mr = (function (mr, $, window, document){
             }
         });
 
-        $(form).find('.validate-email, .email, [name*="cm-"][type="email"]').each(function() {
+        form.find('.validate-email, .email, [name*="cm-"][type="email"]').each(function() {
             if (!(/(.+)@(.+){2,}\.(.+){2,}/.test($(this).val()))) {
+                $(this).addClass('field-error');
+                error = 1;
+            } else {
+                $(this).removeClass('field-error');
+            }
+        });
+
+        form.find('.validate-number-dash').each(function() {
+            if (!(/^[0-9][0-9-]+[0-9]$/.test($(this).val()))) {
                 $(this).addClass('field-error');
                 error = 1;
             } else {
@@ -1053,13 +1125,17 @@ mr = (function (mr, $, window, document){
             $(this).addClass('interact');
         }).removeClass('interact');
         
-        mr.maps.initAPI();
-        mr.maps.init();
+        var mapsOnPage = $('.map-container[data-maps-api-key]');
+        if(mapsOnPage.length){
+            mapsOnPage.addClass('gmaps-active');
+            mr.maps.initAPI($);
+            mr.maps.init();
+        }
         
     };
     mr.maps.documentReady = documentReady;
 
-    mr.maps.initAPI = function(){
+    mr.maps.initAPI = function($){
         // Load Google MAP API JS with callback to initialise when fully loaded
         if(document.querySelector('[data-maps-api-key]') && !document.querySelector('.gMapsAPI')){
             if($('[data-maps-api-key]').length){
@@ -1079,9 +1155,10 @@ mr = (function (mr, $, window, document){
     mr.maps.init = function(){
         if(typeof window.google !== "undefined"){
             if(typeof window.google.maps !== "undefined"){
-                $('.map-container[data-maps-api-key]').each(function(){
+                
+                jQuery('.gmaps-active').each(function(){
                     var mapElement    = this,
-                        mapInstance   = $(this),
+                        mapInstance   = jQuery(this),
                         mapJSON       = typeof mapInstance.attr('data-map-style') !== typeof undefined ? mapInstance.attr('data-map-style'): false,
                         mapStyle      = JSON.parse(mapJSON) || [{"featureType":"landscape","stylers":[{"saturation":-100},{"lightness":65},{"visibility":"on"}]},{"featureType":"poi","stylers":[{"saturation":-100},{"lightness":51},{"visibility":"simplified"}]},{"featureType":"road.highway","stylers":[{"saturation":-100},{"visibility":"simplified"}]},{"featureType":"road.arterial","stylers":[{"saturation":-100},{"lightness":30},{"visibility":"on"}]},{"featureType":"road.local","stylers":[{"saturation":-100},{"lightness":40},{"visibility":"on"}]},{"featureType":"transit","stylers":[{"saturation":-100},{"visibility":"simplified"}]},{"featureType":"administrative.province","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"labels","stylers":[{"visibility":"on"},{"lightness":-25},{"saturation":-100}]},{"featureType":"water","elementType":"geometry","stylers":[{"hue":"#ffff00"},{"lightness":-25},{"saturation":-97}]}],
                         zoomLevel     = (typeof mapInstance.attr('data-map-zoom') !== typeof undefined && mapInstance.attr('data-map-zoom') !== "") ? mapInstance.attr('data-map-zoom') * 1: 17,
@@ -1092,7 +1169,7 @@ mr = (function (mr, $, window, document){
                         address       = typeof mapInstance.attr('data-address') !== typeof undefined ? mapInstance.attr('data-address').split(';'): [""],
                         markerImage   = typeof mapInstance.attr('data-marker-image') !== typeof undefined ? mapInstance.attr('data-marker-image'): 'img/mapmarker.png',
                         markerTitle   = "We Are Here",
-                        isDraggable   = $(document).width() > 766 ? true : false,
+                        isDraggable   = jQuery(document).width() > 766 ? true : false,
                         map, marker,
                         mapOptions = {
                             draggable: isDraggable,
@@ -1116,7 +1193,8 @@ mr = (function (mr, $, window, document){
                                 address.forEach(function(address){
                                     var markerGeoCoder;
                                     
-                                    markerImage = {url: typeof window.mr_variant === typeof undefined ? markerImage : '../img/mapmarker.png', scaledSize: new google.maps.Size(50,50)};
+                                    markerImage = {url: typeof window.mr_variant === typeof undefined ? typeof markerImage !== "object" ? markerImage: markerImage.url : '../img/mapmarker.png', scaledSize: new google.maps.Size(50,50)};
+
                                     if(/(\-?\d+(\.\d+)?),\s*(\-?\d+(\.\d+)?)/.test(address) ){
                                         var latlong = address.split(','),
                                         marker = new google.maps.Marker({
@@ -1232,28 +1310,8 @@ mr = (function (mr, $, window, document){
             }
             //End of "if filterable masonry item exists"
         });
-        
-    };
 
-    var windowLoad = function(){
-
-        $('.masonry').each(function(){
-            var masonry = $(this).find('.masonry__container');
-
-            masonry.on('layoutComplete',function(){
-                masonry.addClass('masonry--active');
-            });
-
-            masonry.isotope({
-              itemSelector: '.masonry__item',
-              masonry: {
-                columnWidth: '.masonry__item'
-              }
-            });
-
-        });
-
-        $('.masonry__filters li').on('click touchstart', function(){
+        $(document).on('click touchstart', '.masonry__filters li', function(){
             var masonryFilter = $(this);
             var masonryContainer = masonryFilter.closest('.masonry').find('.masonry__container');
             var filterValue = '*';
@@ -1263,7 +1321,48 @@ mr = (function (mr, $, window, document){
             masonryFilter.siblings('li').removeClass('active');
             masonryFilter.addClass('active');
             masonryContainer.removeClass('masonry--animate');
+            masonryContainer.on('layoutComplete',function(){
+                $(this).addClass('masonry--active');
+                if(typeof mr_parallax !== typeof undefined){
+                    setTimeout(function(){ mr_parallax.profileParallaxElements(); },100);
+                }
+            });
             masonryContainer.isotope({ filter: filterValue });
+            
+        });
+        
+    };
+
+    var windowLoad = function(){
+
+        $('.masonry').each(function(){
+            var masonry       = $(this).find('.masonry__container'),
+                masonryParent = $(this),
+                defaultFilter = '*';
+
+            // Check for a default filter attribute
+            if(masonryParent.is('[data-default-filter]')){
+                defaultFilter = masonryParent.attr('data-default-filter').toLowerCase();
+                defaultFilter = '.filter-'+defaultFilter;
+                masonryParent.find('li[data-masonry-filter]').removeClass('active');
+                masonryParent.find('li[data-masonry-filter="'+masonryParent.attr("data-default-filter").toLowerCase()+'"]').addClass('active');
+            }
+
+            masonry.on('layoutComplete',function(){
+                masonry.addClass('masonry--active');
+                if(typeof mr_parallax !== typeof undefined){
+                    setTimeout(function(){ mr_parallax.profileParallaxElements(); },100);
+                }
+            });
+
+            masonry.isotope({
+              itemSelector: '.masonry__item',
+              filter: defaultFilter,
+              masonry: {
+                columnWidth: '.masonry__item'
+              }
+            });
+
         });
     };
 
@@ -1732,7 +1831,7 @@ mr = (function (mr, $, window, document){
 
         $('.notification[data-autoshow]').each(function(){
             var notification = $(this);
-            var millisecondsDelay = notification.attr('data-autoshow') * 1;
+            var millisecondsDelay = parseInt(notification.attr('data-autoshow'),10);
 
             // If this notification has a cookie attribute, check to see if a cookie is set, and if so, don't show it.
             if(typeof notification.attr('data-cookie') !== typeof undefined){
@@ -1747,6 +1846,7 @@ mr = (function (mr, $, window, document){
         $('[data-notification-link]:not(.notification)').on('click', function(){
             var notificationID = jQuery(this).attr('data-notification-link');
             var notification = $('.notification[data-notification-link="'+notificationID+'"]');
+            jQuery('.notification--reveal').addClass('notification--dismissed');
             notification.removeClass('notification--dismissed');
             mr.notifications.showNotification(notification, 0);
             return false;
@@ -1780,16 +1880,26 @@ mr = (function (mr, $, window, document){
                 notification.find('input').first().focus();
             }
         },delay);
+        // If notification has autohide attribute, set a timeout 
+        // for the autohide time plus the original delay time in case notification was called
+        // on page load
+        if(notification.is('[data-autohide]')){
+            var hideDelay = parseInt(notification.attr('data-autohide'),10);
+            setTimeout(function(){
+                mr.notifications.closeNotification(notification);
+            },hideDelay+delay);
+        }
     };
 
     mr.notifications.closeNotification = function(notification){
-
         var $notification = jQuery(notification);
-        
-        notification = $notification.is('.notification-close') ? 
+
+        notification = $notification.is('.notification') ? 
+                       $notification :
+                       $notification.is('.notification-close') ? 
                        $notification.closest('.notification') : 
                        $('.notification[data-notification-link="'+notification+'"]');
-
+        
         notification.addClass('notification--dismissed');
         notification.closest('nav').removeClass('notification--reveal');
 
@@ -1841,10 +1951,100 @@ mr = (function (mr, $, window, document){
 
 }(mr, jQuery, window, document));
 
+//////////////// EasyPiecharts
+mr = (function (mr, $, window, document){
+	  "use strict";
+
+		mr.easypiecharts = {};
+		mr.easypiecharts.pies = [];
+
+		var documentReady = function($){
+
+			mr.easypiecharts.init = function(){
+
+				mr.easypiecharts.pies = [];
+            
+				$('.radial').each(function(){
+				  var pieObject  = {},
+					  currentPie = jQuery(this);
+
+					  pieObject.element = currentPie;
+					  pieObject.value = parseInt(currentPie.attr('data-value'),10);
+					  pieObject.top = currentPie.offset().top;
+					  pieObject.height = currentPie.height()/2;
+					  pieObject.active = false;
+					  mr.easypiecharts.pies.push(pieObject);
+				});
+			};
+
+			mr.easypiecharts.activate = function(){
+				mr.easypiecharts.pies.forEach(function(pie){
+					if(Math.round((mr.scroll.y + mr.window.height)) >= Math.round(pie.top+pie.height)){
+						if(pie.active === false){
+							
+		                	pie.element.data('easyPieChart').enableAnimation();
+		                	pie.element.data('easyPieChart').update(pie.value);
+		                	pie.element.addClass('radial--active');
+		                	pie.active = true;
+						}
+		            }
+	        	});
+			};
+
+		  	$('.radial').each(function(){
+		  		var chart    = jQuery(this),
+		  			value    = 0,
+		  			color    = '#000000',
+		  			time     = 2000,
+		  			pieSize  = 110,
+		  			barWidth = 3;
+
+		  		if(typeof chart.attr('data-timing') !== typeof undefined){
+		  			time = chart.attr('data-timing')*1;
+		  		}
+		  		if(typeof chart.attr('data-color') !== typeof undefined){
+		  			color = chart.attr('data-color');
+		  		}
+		  		if(typeof chart.attr('data-size') !== typeof undefined){
+		  			pieSize = chart.attr('data-size');
+		  		}
+		  		if(typeof chart.attr('data-bar-width') !== typeof undefined){
+		  			barWidth = chart.attr('data-bar-width');
+		  		}
+		  		chart.css('height',pieSize).css('width',pieSize);
+
+		  		chart.easyPieChart({
+		  			animate: ({duration: time, enabled: true}),
+		  			barColor: color,
+		  			scaleColor: false,
+		  			size: pieSize,
+		  			lineWidth: barWidth
+		  		});
+		  		chart.data('easyPieChart').update(0);
+		  	});
+
+		  	if($('.radial').length){
+		  		mr.easypiecharts.init();
+		  		mr.easypiecharts.activate();
+		  		mr.scroll.listeners.push(mr.easypiecharts.activate);
+		  	}
+
+	  };
+
+	  mr.easypiecharts.documentReady = documentReady;
+
+	  mr.components.documentReadyDeferred.push(documentReady);
+	  return mr;
+
+}(mr, jQuery, window, document));
+
 //////////////// Flickity
 mr = (function (mr, $, window, document){
     "use strict";
     
+    mr.sliders = {};
+    mr.sliders.draggable = true;
+
     var documentReady = function($){
 
         $('.slider').each(function(index){
@@ -1857,7 +2057,7 @@ mr = (function (mr, $, window, document){
             var paging = false;
             var timing = 7000;
             var autoplay = true;
-            var draggable = true;
+            var draggable = mr.sliders.draggable;
             if(slider.attr('data-arrows') === 'true'){
                 arrows = true;
             }else{
@@ -1905,9 +2105,7 @@ mr = (function (mr, $, window, document){
         
     };
 
-    mr.sliders = {
-      documentReady : documentReady        
-    };
+    mr.sliders.documentReady = documentReady;
 
     mr.components.documentReadyDeferred.push(documentReady);
     return mr;
@@ -1927,21 +2125,25 @@ mr = (function (mr, $, window, document){
         $('a.inner-link').each(function(){
             var sectionObject = {},
                 link          = $(this),
-                href          = link.attr('href');
+                href          = link.attr('href'),
+                validLink     = new RegExp('^#[^\n^\s^\#^\.]+$');
             
-            if($('body').find('section'+href).length){
-                sectionObject.id     = href;
-                sectionObject.top = Math.round($(href).offset().top);
-                sectionObject.height = Math.round($(href).outerHeight());
-                sectionObject.link   = link.get(0);
-                sectionObject.active = false;
+            if(validLink.test(href)){
 
-                mr.smoothscroll.sections.push(sectionObject);
+                if($('section'+href).length){
+                    sectionObject.id     = href;
+                    sectionObject.top = Math.round($(href).offset().top);
+                    sectionObject.height = Math.round($(href).outerHeight());
+                    sectionObject.link   = link.get(0);
+                    sectionObject.active = false;
+
+                    mr.smoothscroll.sections.push(sectionObject);
+                }
             }
         });
 
         mr.smoothscroll.highlight();
-    }
+    };
 
     mr.smoothscroll.highlight = function(){
         mr.smoothscroll.sections.forEach(function(section){
@@ -2021,7 +2223,7 @@ mr = (function (mr, $, window, document){
                 tabContainer  = clickedTab.closest('.tabs-container'),
                 activeIndex   = (clickedTab.index()*1)+(1),
                 activeContent = tabContainer.find('> .tabs-content > li:nth-of-type('+activeIndex+')'),
-                iframe;
+                iframe, radial;
 
             tabContainer.find('> .tabs > li').removeClass('active');
             tabContainer.find('> .tabs-content > li').removeClass('active');
@@ -2035,6 +2237,7 @@ mr = (function (mr, $, window, document){
             if(iframe.length){
                 iframe.attr('src', iframe.attr('src'));
             }
+
         });
         
         $('.tabs li.active').trigger('click');
