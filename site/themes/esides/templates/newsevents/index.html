@@ -1,0 +1,120 @@
+
+{{ collection:news_events as="items" paginate="true" limit="9" }}
+<section class="bg--dark space--sm">
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-12">
+				<h1>News and Events</h1>
+			</div>
+			<div class="col-sm-12">
+        		<div class="masonry masonry--tiles">
+                    <div class="masonry-filter-container">
+                        <span>Types:</span>
+                        <div class="masonry-filter-holder">
+                            <div class="masonry__filters" data-filter-all-text="All Types"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="masonry__container">
+                        	{{ items }}
+                        		{{ if news_event }}
+								<div class="masonry__item col-xs-12 col-sm-4" data-masonry-filter="event">
+									<div class="card card-2">
+                                        <div class="card__top">
+                                        	<span class="label">Event</span>
+                                            {{ if image }}
+											<a href="{{ url }}" class="block">
+												{{ assets:image }}
+													<img src="{{ glide:url width='750' fit='crop' }}" />
+												{{ /assets:image }}
+											</a>
+											{{ /if }}
+                                        </div>
+                                        <div class="card__body">
+                                            <h4>{{ news_event }}{{ if type == "event" }} <i class="material-icons">{{type}}</i> {{ /if }} {{ /news_event }} {{ title }}</h4>
+                                            {{ if subtitle }}
+											<span class="type--fade">{{Understanding the fundamentals}}</span>
+											{{ /if }}
+                                            <p>
+                                                {{ content strip_tags="img|a|p" safe_truncate="120" ensure_right="..." }}
+                                            </p>
+                                        </div>
+                                        {{ news_event }}
+                                        	{{ if type == "event" }}
+                                        <div class="card__bottom text-center">
+                                            <div class="card__action">
+                                                <a href="{{ url }}">
+                                                    <i class="material-icons">date_range</i>
+                                                </a>
+                                                <span class="h6 type--uppercase">{{ date_and_time format="M j, Y" }}</span>
+                                            </div>
+                                            <div class="card__action">
+                                                <a href="{{ url }}">
+                                                    <i class="material-icons">access_time</i>
+                                                </a>
+                                                <span class="h6 type--uppercase">{{ date_and_time format="H:m" }}</span>
+                                            </div>
+                                            <div class="card__action">
+                                                <a href="{{ url }}">
+                                                    <i class="material-icons">place</i>
+                                                </a>
+                                                <span class="h6 type--uppercase">{{ address.city }}</span>
+                                            </div>
+                                        </div>
+                                        	{{ /if }}
+                                        {{ /news_event }}
+                                    </div>
+								</div>
+								{{ else }}
+								<div class="masonry__item col-xs-12 col-sm-4" data-masonry-filter="news">
+									<article class="feature feature-1">
+										<span class="label">News</span>
+										{{ if image }}
+										<a href="{{ url }}" class="block">
+											{{ assets:image }}
+												<img src="{{ glide:url width='750' fit='crop' }}" />
+											{{ /assets:image }}
+										</a>
+										{{ /if }}
+										
+										<div class="feature__body boxed boxed--border">
+											<span>
+												{{ if (date | days_ago) < 21 }}
+													{{ date | relative }}
+												{{ elseif (date | format:Y) == now | format:Y }}
+													{{ date format="M j" }}
+												{{ else }}
+													{{ date format="M j, Y" }}
+												{{ /if }}
+											</span>
+											<h4>{{ title }}</h4>
+                                            {{ if subtitle }}
+											<span class="type--fade">{{Understanding the fundamentals}}</span>
+											{{ /if }}
+											<p>
+												{{ content strip_tags="img|a|p" safe_truncate="210" ensure_right="..." }}
+											</p>
+											<a href="{{ url }}">
+												Read More
+											</a>
+										</div>
+										<div class="count disqus-comment-count" data-disqus-url="{{ url }}"></div>
+									</article>
+
+								</div>
+								{{ /if }}
+							{{ /items }}
+                        </div>
+                        <!--end masonry container-->
+                    </div>
+                    <!--end of row-->
+                </div>
+        	</div>
+		</div>
+	</div>
+</section>
+{{ partial:pagination }}
+{{ /collection:news_events }}
+{{ section:page_scripts }}
+    
+{{ /section:page_scripts }}

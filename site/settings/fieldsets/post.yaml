@@ -1,5 +1,6 @@
 title: Blog Post
 hide: true
+taxonomies: false
 fields:
   title:
     type: title

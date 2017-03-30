@@ -37,7 +37,8 @@
 /**! 35. Navigation In Page **/
 /**! 36. Helper Classes **/
 /**! 37. Spacing **/
-/**! 38. Theme Overrides **/
+/**! 38. Boxed Layout **/
+/**! 39. Theme Overrides **/
 /**!**************/
 /**!**************/
 /**!**************/
@@ -891,6 +892,21 @@ div[data-overlay] ul {
 .btn.bg--dark:hover {
   opacity: .9;
 }
+.btn.bg--error {
+  background: #e23636;
+  border-color: #e23636 !important;
+}
+.btn.bg--error:hover {
+  background: #e54c4c;
+  border-color: #e54c4c !important;
+  color: #fff !important;
+}
+.btn.bg--error .btn__text {
+  color: #fff;
+}
+.btn.bg--error .btn__text i {
+  color: #fff;
+}
 @media all and (min-width: 768px) {
   .btn + .btn {
     margin-left: 1.85714286em;
@@ -1188,7 +1204,7 @@ ul:last-child {
     padding: 4.64285714em;
   }
 }
-@media all and (max-width: 990px) {
+@media all and (max-width: 767px) {
   .dropdown .dropdown__container {
     min-width: 100%;
     position: relative;
@@ -1358,6 +1374,9 @@ button[type="submit"].btn--loading .btn__text {
 }
 button:focus {
   outline: none !important;
+}
+button.bg--error {
+  color: #fff;
 }
 .input-checkbox,
 .input-radio,
@@ -2744,6 +2763,9 @@ a {
 .bg--white i {
   color: #252525;
 }
+.bg--error {
+  background: #e23636;
+}
 .imagebg:not(.image--light) .bg--white p,
 .imagebg:not(.image--light) .bg--white span,
 .imagebg:not(.image--light) .bg--white ul,
@@ -3494,7 +3516,27 @@ section.unpad--top {
 .unmarg--top {
   margin-top: 0;
 }
-/**! 38. Theme Overrides **/
+/**! 38. Boxed Layout **/
+@media all and (min-width: 1280px) {
+  body.boxed-layout {
+    padding: 3.71428571em 0;
+    background: #ededed;
+  }
+  body.boxed-layout section:not([class*='bg-']):not(.imagebg),
+  body.boxed-layout footer:not([class*='bg-']):not(.imagebg),
+  body.boxed-layout nav:not([class*='bg-']):not(.bar--transparent):not(.bar--absolute),
+  body.boxed-layout .tabs-container:not([class*='bg-']):not(.imagebg) {
+    background: #ffffff;
+  }
+  body.boxed-layout .nav-container,
+  body.boxed-layout .main-container,
+  body.boxed-layout > section,
+  body.boxed-layout nav {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+}
+/**! 39. Theme Overrides **/
 /*! -- Stack Customizers -- */
 .box-shadow {
   box-shadow: 0px 0px 25px 0px rgba(0, 0, 0, 0.04);
@@ -3536,6 +3578,17 @@ section.unpad--top {
 }
 .main-container.transition--fade:not(.transition--active) {
   cursor: wait;
+}
+@media all and (min-width: 1280px) {
+  body.boxed-layout > section.bar-3:first-of-type {
+    border-radius: 6px 6px 0 0;
+  }
+  body.boxed-layout .main-container > footer:last-child {
+    border-radius: 0 0 6px 6px;
+  }
+}
+body.boxed-layout .modal-container section:not([class*='bg-']) {
+  background: none;
 }
 /*! -- Stack Helpers -- */
 @media all and (max-width: 767px) {
@@ -4484,7 +4537,14 @@ section.parallax .row .background-image-holder {
   -webkit-transform: translate3d(-50%, 0, 0);
   box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.06);
 }
+.bg--primary-1 .label:not([class*='bg--']) {
+  background: #64789c;
+}
 /*! -- Stack Bars -- */
+.bar .logo {
+  max-height: 1.85714286em;
+  max-width: none;
+}
 .menu-horizontal > li > a,
 .menu-horizontal > li > .modal-instance > a {
   font-weight: 500;
@@ -4508,17 +4568,13 @@ section.parallax .row .background-image-holder {
   .bar-1 .menu-horizontal > li {
     display: inline-block;
   }
-  .bar-2 .menu-horizontal > li:not(:first-child):not(.dropdown--active),
-  .bar-1 .menu-horizontal > li:not(:first-child):not(.dropdown--active) {
+  .bar-2 .menu-horizontal > li:not(:first-child),
+  .bar-1 .menu-horizontal > li:not(:first-child) {
     margin-left: 0.92857143em;
   }
   .bar-2 .bar__module,
   .bar-1 .bar__module {
     margin-bottom: 1.85714286em;
-  }
-  .bar-2 .dropdown__container,
-  .bar-1 .dropdown__container {
-    left: 0 !important;
   }
   .bar-2 .row div[class*='col-']:last-child .bar__module:last-child,
   .bar-1 .row div[class*='col-']:last-child .bar__module:last-child {
@@ -4539,7 +4595,9 @@ section.parallax .row .background-image-holder {
   }
 }
 .bar-2 .logo {
-  max-height: 1.85714286em;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 .bar-3 {
   font-size: 0.85714286em;
@@ -4911,7 +4969,7 @@ section.parallax .row .background-image-holder {
   display: inline-block;
   width: 100%;
 }
-@media all and (max-width: 990px) {
+@media all and (max-width: 767px) {
   .dropdown [class*='col-'] + [class*='col-'] {
     margin-top: 0.92857143em;
   }
@@ -5256,6 +5314,12 @@ section.parallax .row .background-image-holder {
 }
 .imagebg .icon {
   color: #fff;
+}
+p .material-icons {
+  font-size: 1em;
+}
+p .material-icons:first-child {
+  margin-right: 0.30952381em;
 }
 /*! -- Stack Tooltips -- */
 .tooltip {
@@ -6327,9 +6391,6 @@ a[data-lightbox]:hover {
   height: 100%;
   top: 0;
 }
-.cover-blocks {
-  margin-bottom: 3.71428571em;
-}
 @media all and (min-width: 768px) {
   .cover-slider + .cta-4 {
     position: absolute;
@@ -7182,6 +7243,9 @@ label + div[class*='input-'] {
   position: relative;
   bottom: 20px;
 }
+.pricing .feature-6 p {
+  min-height: 5.57142857em;
+}
 .pricing-1 .btn:last-child {
   position: absolute;
   width: 100%;
@@ -7697,6 +7761,9 @@ section.unpad > article .imagebg + div {
 .comments__list li:last-child {
   border-radius: 0 0 6px 6px;
 }
+.bg--secondary .comments__list li:nth-child(even) {
+  background: #fff;
+}
 @media all and (min-width: 768px) {
   .comments__list li {
     padding: 2.78571429em;
@@ -7783,6 +7850,43 @@ section.unpad > article .imagebg + div {
 }
 .tag-cloud li:not(:last-child):after {
   content: ',';
+}
+.conversation__head {
+  border-radius: 6px 6px 0 0;
+}
+.conversation__head.boxed:not(:last-child) {
+  margin: 0;
+}
+.conversation__head h4 {
+  margin: 0;
+}
+.conversation__head .conversation__avatar {
+  margin-top: 0.92857143em;
+}
+.conversation__head .conversation__avatar img {
+  max-height: 1.85714286em;
+  display: inline-block;
+  margin-right: 0.46428571em;
+  margin-bottom: 0;
+}
+@media all and (min-width: 768px) {
+  .conversation__avatar {
+    position: absolute;
+    top: 1.85714286em;
+    right: 2.78571429em;
+  }
+}
+.conversation__reply {
+  border-top: none !important;
+  border-bottom: none;
+  border-radius: 0;
+}
+.conversation__reply.boxed:not(:last-child) {
+  margin-bottom: 0;
+}
+.conversation__reply + .conversation__comments .comments__list li:first-child {
+  border-radius: 0;
+  border-top: none;
 }
 /*! -- Stack Portfolio -- */
 .project-thumb > a {

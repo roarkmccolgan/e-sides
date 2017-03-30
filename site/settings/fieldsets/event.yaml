@@ -1,0 +1,50 @@
+taxonomies:
+  phase: true
+title: Event
+create_title: Add New Event
+hide: true
+fields:
+  title:
+    type: title
+    display: Title
+    validate: required
+  description:
+    type: redactor
+    display: Description
+    settings: Standard
+  event_type:
+    type: select
+    display: Event Type
+    options:
+      event: Event
+      alarm: Save the Date
+      people: Conference
+      videocam: Webinar
+    default: event
+  event_date:
+    type: date
+    display: Event Date
+    allow_blank: true
+    earliest_date: January 1, 1900
+    validate: required
+  time:
+    type: time
+    display: Time
+    default: TBA
+  venue:
+    type: text
+    display: Venue
+    validate: required
+    default: tba
+  external_link:
+    type: text
+    display: External Link / URL
+  media_item:
+    type: collection
+    display: Media Item
+    collection:
+      - media
+    max_items: "1"
+    sort: date:desc
+    label: '{{ title }} ({{ date format="Y" }})'
+    mode: tags

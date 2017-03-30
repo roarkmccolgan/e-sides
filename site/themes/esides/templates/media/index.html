@@ -1,0 +1,54 @@
+
+{{ collection:media as="items" paginate="true" limit="9" }}
+<section class="bg--dark space--sm">
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-12">
+				<h1>Media</h1>
+			</div>
+			<div class="col-sm-12">
+        		<div class="masonry masonry--tiles">
+                    <div class="masonry-filter-container">
+                        <span>Types:</span>
+                        <div class="masonry-filter-holder">
+                            <div class="masonry__filters" data-filter-all-text="All Types"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="masonry__container">
+                        	{{ items }}
+								<div class="masonry__item col-xs-12 col-sm-6" data-masonry-filter="{{ phase }}{{ title }}{{ /phase }}, {{ media }}{{ title }}{{ /media }}">
+									{{ phase }}
+										<span class="label">{{ title }}</span>
+									{{ /phase }}										
+									<div class="feature feature-5 boxed boxed--lg boxed--border">
+					                    <i class="icon {{ icon_type }} icon--lg color--primary-1"></i>
+					                    <div class="feature__body">
+					                        <h5>{{ title }}</h5>
+					                        {{ if description }}
+												<p>{{ description }}</p>
+											{{ /if }}
+					                        <a href="{{ url }}" class="btn">View</a>
+					                    </div>
+					                </div>
+								</div>
+							{{ /items }}
+                        </div>
+                        <!--end masonry container-->
+                    </div>
+                    <!--end of row-->
+                </div>
+        	</div>
+		</div>
+	</div>
+</section>
+{{ partial:pagination }}
+{{ /collection:media }}
+{{ section:page_scripts }}
+    <!-- <script src="articles.js"></script>
+    <script id="dsq-count-scr" src="//e-sides.disqus.com/count.js" async></script> -->
+    <script src="{{ theme:js src="ytplayer.min" }}"></script>
+    <script type="text/javascript">
+    	
+    </script>
+{{ /section:page_scripts }}

@@ -1,0 +1,51 @@
+taxonomies:
+  categories: true
+  phase: true
+title: News and Events
+create_title: Create News or Event Item
+fields:
+  content:
+    type: redactor
+    display: Article / Description
+  image:
+    type: assets
+    display: Main Image
+    container: main
+    folder: /
+    restrict: true
+    max_files: 1
+  news_event:
+    type: replicator
+    display: News Event
+    sets:
+      event:
+        display: Event
+        fields:
+          type:
+            type: select
+            display: type
+            options:
+              event: event
+              people: Conference
+              play_circle_outline: Webinar
+            default: event
+          venue:
+            type: text
+            display: Venue
+          address:
+            type: array
+            display: Address
+            keys:
+              address1: Address Line 1
+              address2: Address Line 2
+              address3: Address Line 3
+              city: City
+              Country: Country
+          date_and_time:
+            type: date
+            display: Date and Time
+            allow_time: true
+            earliest_date: January 1, 1900
+          external_link:
+            type: text
+            display: External URL

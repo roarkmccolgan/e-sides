@@ -1,8 +1,8 @@
 taxonomies:
   categories: true
   tags: true
-title: Article
-create_title: Create New Article
+title: News
+create_title: Create News Article
 fields:
   title:
     type: title
@@ -16,17 +16,19 @@ fields:
     cheatsheet: true
     container: main
     folder: /
-    restrict_assets: false
   date:
     type: date
     display: Date
-    allow_blank: false
-    allow_time: false
     earliest_date: January 1, 1900
   image:
     type: assets
     display: Image
     container: main
     folder: /
-    restrict: false
-    max_files: "1"
+    max_files: 1
+  is_an_event:
+    type: checkboxes
+    display: Is an Event
+  news_item:
+    type: fieldset
+    display: News Item

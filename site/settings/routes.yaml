@@ -2,11 +2,15 @@ collections:
   blog: '/blog/{year}/{month}/{day}/{slug}'
   things: '/things/{slug}'
   events: '/events/{slug}'
-  articles: '/articles/{slug}'
+  articles: '/news-events/{slug}'
   collection-assets: '/collection-assets/{slug}'
+  media: '/media/{slug}'
+  news_events: '/news-events/{slug}'
 taxonomies:
   tags: '/blog/tags/{slug}'
   categories: '/articles/categories/{slug}'
+  media: '/media/{slug}'
+  phase: '/phase/{slug}'
 routes:
   /blog/tags: blog/taxonomies
   /search: search

@@ -267,26 +267,115 @@
 <section class="bg--dark">
 	<div class="container">
 		<div class="row">
-			<div class="col-md-8 col-md-offset-2 col-sm-10 col-sm-offset-1">
+			<div class="col-sm-12 col-md-10 col-md-offset-1 text-center">
+        		<h2>
+					Timeline
+				</h2>
+        	</div>
+			<div class="col-sm-12 col-md-10 col-md-offset-1">
 				<div class="process-1">
 					<div class="process__item">
-						<h4>Project Start 1st March 2017</h4>
+						<h4>
+							Project Start<br/>
+							1st March 2017
+						</h4>
 					</div>
-					<div class="active_phase">
-						<div class="process__item">
-							<h4>Phase 1</h4>
-							<a class="grow">
-								<div class="boxed boxed--border  bg--secondary boxed--lg box-shadow descriptionr">
-								    linkk
-								</div>
-							</a>
-						</div>
+					<div class="process__item active_phase boxed boxed--border  bg--secondary boxed--lg box-shadow">
+						<h4>
+							Phase 1<br/>
+							11 November 2017 - Ongoing
+						</h4>
+						<div class="tabs-container" data-content-align="left">
+                            <ul class="tabs">
+                                <li class="active">
+                                    <div class="tab__title text-center">
+                                        <i class="material-icons">videocam</i><br/>
+                                        Webinars
+                                    </div>
+                                    <div class="tab__content">
+									{{ collection:media as="media_items" taxonomy:media="webinars" taxonomy:phase="phase-1" }}
+										{{ if media_items}}
+										<ul>
+										{{ media_items }}
+											<li>
+                                        		<i class="material-icons">play_circle_outline</i>
+                                        		<span>{{ title }}</span>
+                                        		<a class="btn btn--sm pull-right" href="{{ url }}" style="">View</a>                           
+											</li>
+										{{ /media_items }}
+										</ul>
+										{{ else }}
+										<p>
+                                    		No webinars listed, please check back regularly for content.
+                                    	</p>
+										{{ /if }}
+									{{ /collection:media }}
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="tab__title text-center">
+                                        <i class="material-icons">folder</i><br/>
+                                        Reports
+                                    </div>
+                                    <div class="tab__content">
+                                    {{ collection:media as="media_items" taxonomy:media="public-reports" taxonomy:phase="phase-1" }}
+										{{ if media_items}}
+										<ul>
+										{{ media_items }}
+											<li>
+                                        		<i class="material-icons">insert_drive_file</i>
+                                        		<span>{{ title }}</span>
+                                        		<a class="btn btn--sm pull-right" href="{{ url }}" style="">View</a>                           
+											</li>
+										{{ /media_items }}
+										</ul>
+										{{ else }}
+										<p>
+                                    		No Public Reports listed, please check back regularly for content.
+                                    	</p>
+										{{ /if }}
+									{{ /collection:media }}
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="tab__title text-center">
+                                        <i class="material-icons">event_available</i><br/>
+                                        Events
+                                    </div>
+                                    <div class="tab__content">
+                                    {{ collection:news_events as="event_items" }}
+										{{ event_items }}
+											{{ if news_event }}
+		                                    	<ul>
+		                                    	{{ news_event }}
+		                                    	{{ if type == "event" }}
+													<li>
+		                                        		<i class="material-icons">{{ type }}</i>
+		                                        		<span>{{ title }}</span>
+		                                        		<a class="btn btn--sm pull-right" href="{{ if external_link }} {{ external_link }} {{ else }} {{ url }} {{ /if }}" style="">View</a>         
+													</li>
+												{{ /if }}
+												{{ /news_event }}
+												</ul>
+											{{ /if }}
+										{{ /event_items }}
+									{{ /collection:news_events }}
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
 					</div>
 					<div class="process__item">
-						<h4>Posted profit<br> second quarter 2015</h4>
-						<p>
-							Prototype intuitive intuitive thought leader personas parallax paradigm long shadow engaging unicorn SpaceTeam fund ideate paradigm. Pair programming 360 campaign piverate minimum viable product
-						</p>
+						<h4>Phase 2<br> ~ January 2018</h4>
+					</div>
+					<div class="process__item">
+						<h4>Phase 3<br> --</h4>
+					</div>
+					<div class="process__item">
+						<h4>Phase 4<br> --</h4>
+					</div>
+					<div class="process__item">
+						<h4>Project Complete</h4>
 					</div>
 				</div>
 			</div>

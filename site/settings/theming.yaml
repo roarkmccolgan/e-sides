@@ -10,4 +10,4 @@ default_entry_fieldset: entry
 default_term_fieldset: term
 default_asset_fieldset: asset
 smartypants: false
-allow_php: false
+allow_php: true

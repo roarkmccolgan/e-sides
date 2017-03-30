@@ -1,10 +1,10 @@
 title: About
 hide: true
+taxonomies: false
 fields:
   title:
     type: title
     display: Title
-    localizable: false
   content:
     type: markdown
     display: Content

@@ -1,4 +1,5 @@
 title: Gallery
+taxonomies: false
 fields:
   title:
     type: title

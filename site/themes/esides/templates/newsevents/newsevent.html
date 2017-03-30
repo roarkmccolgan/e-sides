@@ -1,0 +1,102 @@
+<section class="bg--dark">
+	<div class="container">
+		<div class="row">
+			{{ if news_event }}
+			<div class="col-md-12">
+				<h2>{{ title }}</h2>
+			</div>
+            <div class="col-sm-8 col-md-7">
+            	
+            	{{ if image }}
+					{{ assets:image }}
+						{{ assets:image }}
+							<img src="{{ glide:url width='750' fit='crop' }}" class="border--round" />
+						{{ /assets:image }}
+					{{ /assets:image }}
+				{{ /if }}
+				{{ content }}
+            </div>
+            {{ news_event }}
+            <div class="col-sm-4 col-md-3">
+                <div class="text-block">
+                    <h5><i class="material-icons">date_range</i> Date</h5>
+                    <p>
+                        {{ date_and_time format="M j, Y" }}
+                    </p>
+                </div>
+                <div class="text-block">
+                    <h5><i class="material-icons">place</i> Location</h5>
+                    <p>
+                        {{venue}}
+                        {{ if address.address1 }} <br /> {{ address.address1 }} {{ /if }}
+                        {{ if address.address2 }} <br /> {{ address.address2 }} {{ /if }}
+                        {{ if address.address3 }} <br /> {{ address.address3 }} {{ /if }}
+                        {{ if address.city }} <br /> {{ address.city }} {{ /if }}{{ if address.country }}, {{ address.country }} {{ /if }}
+                        <br /> Armadale, Victoria
+                    </p>
+                </div>
+                <div class="text-block">
+                    <h5><i class="material-icons">access_time</i> Time</h5>
+                    <p>
+                        {{ date_and_time format="H:m" }}
+                    </p>
+                </div>
+                {{ if external_link }}
+                <div class="text-block">
+                    <a href="{{ external_link }}" class="btn"><span class="btn__text">Click Here</span></a>
+                </div>
+                {{ /if }}
+            </div>
+            {{ /news_event }}
+			{{ else }}
+			<div class="col-sm-10 col-md-8 col-sm-offset-1 col-md-offset-2">
+				<article>
+					<div class="article__title text-center">
+						<h1 class="h2">{{ title }}</h1>
+						<h5>
+							{{ author_name }} | 
+							<span class="length">{{ content | read_time }} minute read</span> |
+							<span>{{ date format="F j, Y" }} in </span> 
+							{{ categories }}
+								{{ if index!=1 }}, {{ endif }}<a href="{{ url }}">{{ title }}</a>
+							 {{ /categories }}
+						</h5>
+					</div>
+					<div class="article__body">
+						{{ if image }}
+							{{ assets:image }}
+								{{ assets:image }}
+									<img src="{{ glide:url width='750' fit='crop' }}" />
+								{{ /assets:image }}
+							{{ /assets:image }}
+						{{ /if }}
+						
+						{{ content }}
+					</div>
+					<div class="article__share text-center">
+						<a class="btn bg--facebook btn--icon" href="https://www.facebook.com/sharer/sharer.php?u={{ current_url }}">
+							<span class="btn__text">
+								<i class="socicon socicon-facebook"></i>
+								Share on Facebook
+							</span>
+						</a>
+						<a class="btn bg--twitter btn--icon" href="https://twitter.com/home?status={{ current_url }}">
+							<span class="btn__text">
+								<i class="socicon socicon-twitter"></i>
+								Share on Twitter
+							</span>
+						</a>
+					</div>
+				</article>
+			</div>
+
+			{{ /if }}	
+		</div>
+	</div>
+</section>
+{{ if !news_event }}
+{{ partial:article-comments }}
+{{ /if }}
+
+{{ section:page_scripts }}
+{{ /section:page_scripts }}

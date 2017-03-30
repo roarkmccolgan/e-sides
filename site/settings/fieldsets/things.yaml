@@ -1,6 +1,7 @@
 title: Things
 create_title: Add New Thing
 hide: true
+taxonomies: false
 fields:
   title:
     type: title

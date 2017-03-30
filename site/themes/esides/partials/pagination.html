@@ -1,8 +1,22 @@
 {{ if paginate:total_pages > 1 }}
     {{ paginate }}
-        <hr>
-        <p>Page {{ current_page }} of {{ total_pages }} ({{ total_results }} total entries)</p>
+    <section class="bg--dark">
+    	<div class="container">
+    		<div class="row">
+				<div class="pagination">
+				    <div class="col-xs-6">
+				    	{{ if prev_page }}
+				        <a class="type--fine-print" href="{{ prev_page }}">« Previous</a>
+				        {{ /if }}
+				    </div>
+				    <div class="col-xs-6 text-right">
+				    	{{ if next_page }}
+				        <a class="type--fine-print" href="{{ next_page }}">next »</a>
+				        {{ /if }}
+				    </div>
+				</div>
+			</div>
+		</div>
+	</section>
     {{ /paginate }}
-
-    {{ paginate:auto_links }}
 {{ /if }}

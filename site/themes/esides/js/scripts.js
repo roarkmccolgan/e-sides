@@ -593,7 +593,7 @@ mr = (function (mr, $, window, document){
                 
                 container.css('left',((-containerOffset)+(masterOffset)));
 
-                if(container.find('.dropdown__content:not([class*="-12"])').length){
+                if(container.find('.dropdown__content:not([class*="md-12"])').length){
                     content = container.find('.dropdown__content');
                     content.css('left', ((menuItem)-(masterOffset)));
                 }
@@ -627,7 +627,7 @@ mr = (function (mr, $, window, document){
                 
                 container.css('right',((-containerOffset)+(masterOffset)));
 
-                if(container.find('.dropdown__content:not([class*="-12"])').length){
+                if(container.find('.dropdown__content:not([class*="md-12"])').length){
                     content = container.find('.dropdown__content');
                     content.css('right', ((menuItem)-(masterOffset)));
                 }
@@ -2258,24 +2258,31 @@ mr = (function (mr, $, window, document){
     
     var documentReady = function($){
         $('[data-toggle-class]').each(function(){
-        	var candidate     = $(this),
-        		data          = candidate.attr('data-toggle-class'),
-        		dataArray     = [],
-        		toggleClass   = '',
-        		toggleElement = '';
-        	dataArray = data.split(";");
+        	var element = $(this),
+                data    = element.attr('data-toggle-class').split("|");
+        		
 
-        	if(dataArray.length === 2){
-        		toggleElement = dataArray[0];
-        		toggleClass   = dataArray[1];
-        		$(candidate).on('click',function(){
-                    candidate.toggleClass('toggled-class');
-        			$(toggleElement).toggleClass(toggleClass);
-        			return false;
-        		});
-        	}else{
-        		console.log('Error in [data-toggle-class] attribute. This attribute accepts an element, or comma separated elements terminated witha ";" followed by a class name to toggle');
-        	}
+            $(data).each(function(){
+                var candidate     = element,
+                    dataArray     = [],
+            	    toggleClass   = '',
+            	    toggleElement = '',
+                    dataArray = this.split(";");
+
+            	if(dataArray.length === 2){
+            		toggleElement = dataArray[0];
+            		toggleClass   = dataArray[1];
+            		$(candidate).on('click',function(){
+                        if(!candidate.hasClass('toggled-class')){
+                            candidate.toggleClass('toggled-class');
+                        }
+            			$(toggleElement).toggleClass(toggleClass);
+            			return false;
+            		});
+            	}else{
+            		console.log('Error in [data-toggle-class] attribute. This attribute accepts an element, or comma separated elements terminated witha ";" followed by a class name to toggle');
+            	}
+            });
         });
     };
 
