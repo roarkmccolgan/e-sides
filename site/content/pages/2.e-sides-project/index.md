@@ -5,7 +5,7 @@ avatar:
   - /assets/avatars/idc.png
 author: IDC
 hero_image:
-  - /assets/agency-1.jpg
+  - /assets/e-sides.jpg
 template: project
 fieldset: project
 id: 3ab612ee-94f9-4014-b19a-884f3640d5d1

@@ -1,0 +1,7 @@
+{{ if icon_type == "icon-File-TextImage" && file}}
+{{ partial:embed-pdf }}
+{{ elseif icon_type == "icon-Video-3" && !file && youtube_url}}
+{{ partial:embed-youtube }}
+{{ elseif icon_type == "icon-Video-3" && file && !youtube_url}}
+{{ partial:embed-video }}
+{{ /if }}

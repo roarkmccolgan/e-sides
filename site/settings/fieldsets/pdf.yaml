@@ -32,3 +32,11 @@ fields:
       icon-File-Excel: Excel
       icon-File-Pie: PPT
     default: icon-File
+  image:
+    type: assets
+    display: Video Background Image
+    instructions: 'Minimun Size: 640X480'
+    container: main
+    folder: /
+    restrict: true
+    max_files: 1

@@ -1,0 +1,27 @@
+<section class="bg--dark space--xxs">
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-12">
+				<h1 class="h2">{{ title }}</h1>
+			</div>
+			<div class="col-xs-12">
+				<div class="video-cover border--round">
+					<div class="background-image-holder">
+						{{ if image }}
+							{{ assets:image }}
+							<img src="{{ glide:url width='750' fit='crop' }}" />
+							{{ /assets:image }}
+						{{ else }}
+							<img src="{{theme:img src="placeholderbg.png"}}" />
+						{{ /if }}
+					</div>
+					<div class="video-play-icon video-play-icon--sm"></div>
+					<iframe src="{{ youtube_url }}" frameborder="0" allowfullscreen></iframe>
+				</div><!--end video cover-->
+			</div>	
+		</div>
+	</div>
+</section>
+{{ section:extra_scripts }}
+<script src="{{ theme:js src="ytplayer.min" }}"></script>
+{{ /section:extra_scripts }}

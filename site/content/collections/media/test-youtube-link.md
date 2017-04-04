@@ -1,6 +1,6 @@
 title: Test Youtube Link
 description: Hello Test youtube link
-youtube_url: https://youtu.be/MQvZ4N1RfS8
+youtube_url: https://www.youtube.com/embed/NHHLISaLe44
 icon_type: icon-Video-3
 media:
   - videos

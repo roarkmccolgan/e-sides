@@ -1,0 +1,26 @@
+<section class="bg--dark space--xxs">
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-12">
+				<h1 class="h2">{{ title }}</h1>
+			</div>
+			<div class="col-xs-12">
+				<div id="pdfembed" style="height: 100%">
+					
+				</div>
+			</div>	
+		</div>
+	</div>
+</section>
+{{ section:extra_scripts }}
+<script src="{{ theme:js src="pdfobject.min" }}"></script>
+{{ /section:extra_scripts }}
+
+{{ section:page_scripts }}
+<script>
+	$(function() {
+	  $('#pdfembed').height($(document).height());
+	});
+	PDFObject.embed("{{ file }}","#pdfembed");
+</script>
+{{ /section:page_scripts }}
