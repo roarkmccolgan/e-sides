@@ -1,0 +1,11 @@
+---
+title: Poll from Survey monkey
+icon_type: icon-Bulleted-List
+poll_script: '<script>(function(t,e,n,o){var s,c,a;t.SMCX=t.SMCX||[],e.getElementById(o)||(s=e.getElementsByTagName(n),c=s[s.length-1],a=e.createElement(n),a.type="text/javascript",a.async=!0,a.id=o,a.src=["https:"===location.protocol?"https://":"http://","widget.surveymonkey.com/collect/website/js/zGLZ4Yx1jZNlQTCYz86VN3h7mwu15i_2BIj8N9uJz_2BFnGA70_2F_2B_2FaqDo_2BSIwR1_2Ba_2F4N.js"].join(""),c.parentNode.insertBefore(a,c))})(window,document,"script","smcx-sdk");</script><a style="font: 12px Helvetica, sans-serif; color: #999; text-decoration: none;" href=https://www.surveymonkey.com/mp/customer-satisfaction-surveys/> Create your own user feedback survey </a>'
+media: poll
+phase:
+  - phase-1
+id: e8a90492-4fd0-4136-b1d0-89edde878eb6
+---
+<p>Poll on the topic of your choice
+</p>

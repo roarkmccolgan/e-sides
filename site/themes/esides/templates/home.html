@@ -1,9 +1,15 @@
-<section class="cover height-80 imagebg text-center slider slider--ken-burns" data-arrows="true" data-paging="true">
+{{ section:extra_css }}
+<link href="http://vjs.zencdn.net/5.19.1/video-js.css" rel="stylesheet">
+<!--[if IE 8]>
+	<script src="http://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script>
+<![endif]-->
+{{ /section:extra_css }}
+<section class="space-bottom--lg cover homeslider height-75 imagebg text-center slider slider--ken-burns" data-arrows="true" data-paging="true">
 	<ul class="slides">
 		{{ collection:slides sort="date:asc" }}
 		<li class="imagebg" data-overlay="4">
 			<div class="background-image-holder background--top">
-				<img alt="background" src="{{ image:0 }}">
+				<img alt="background" src="{{ image }}">
 			</div>
 			<div class="container pos-vertical-center">
 				<div class="row">
@@ -20,6 +26,35 @@
 								{{ button.btn-text }}
 							</span>
 						</a>
+						{{ elseif video || youtube_url }}
+						<div class="modal-instance" style="margin-top: 15px;">
+                            <a class="btn btn--primary type--uppercase modal-trigger" href="#">
+                                <span class="btn__text">
+                                    &#9654; {{ button.btn-link }}
+                                </span>
+                            </a>
+                            <div class="modal-container">
+                                <div class="modal-content bg-dark" data-width="60%" data-height="60%">
+                                	{{ if video }}
+	                                    <video id="my-video" class="video-js vjs-fluid vjs-big-play-centered" controls preload="auto"
+											poster="{{theme:img src="placeholderbg.png"}}"
+											data-setup="{}">
+										{{ assets:video }}
+											  <source src="{{ url }}" type="video/{{ extension }}">
+										{{ /assets:video }}
+										<p class="vjs-no-js">
+										  To view this video please enable JavaScript, and consider upgrading to a web browser that
+										  <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+										</p>
+										</video>
+									{{ elseif youtube_url }}
+										<iframe src="{{ youtube_url }}" frameborder="0" allowfullscreen></iframe>
+									{{ /if }}
+                                </div>
+                                <!--end of modal-content-->
+                            </div>
+                            <!--end of modal-container-->
+                        </div>
 						{{ /if }}
 					</div>
 				</div>
@@ -29,5 +64,6 @@
 </section>
 
 {{ section:page_scripts }}
-<script src="{{ theme:js src="home.js" }}"></script>
+<script src="http://vjs.zencdn.net/5.19.1/video.js"></script>
+<script src="{{ theme:js src="ytplayer.min" }}"></script>
 {{ /section:page_scripts }}

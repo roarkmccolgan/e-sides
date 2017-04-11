@@ -1,5 +1,6 @@
 taxonomies:
-  media: true
+  media:
+    max_items: 1
   phase: true
 title: Media
 create_title: Upload new asset
@@ -7,9 +8,23 @@ fields:
   title:
     type: title
     display: Title
-  description:
-    type: textarea
-    display: description
+  content:
+    type: redactor
+    display: Description
+    settings: Standard
+  icon_type:
+    type: select
+    display: Icon Type
+    instructions: This will define what icon appears in the media listing page.
+    options:
+      icon-File-TextImage: PDF
+      icon-Video-3: Video
+      icon-File-Word: Word
+      icon-File-Excel: Excel
+      icon-File-Pie: PPT
+      icon-Address-Book2: Glossary
+      icon-Bulleted-List: Poll
+    default: icon-File
   file:
     type: assets
     display: File
@@ -21,17 +36,6 @@ fields:
     type: text
     display: Youtube URL
     instructions: Only complete if you are not uploading file here
-  icon_type:
-    type: select
-    display: Icon Type
-    instructions: This will define what icon appears in the media listing page.
-    options:
-      icon-File-TextImage: PDF
-      icon-Video-3: Video
-      icon-File-Word: Word
-      icon-File-Excel: Excel
-      icon-File-Pie: PPT
-    default: icon-File
   image:
     type: assets
     display: Video Background Image
@@ -40,3 +44,6 @@ fields:
     folder: /
     restrict: true
     max_files: 1
+  poll_script:
+    type: textarea
+    display: Poll Script from Survey Monkey

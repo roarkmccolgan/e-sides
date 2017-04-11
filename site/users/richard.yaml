@@ -2,8 +2,10 @@
 roles:
   - 967f623d-5f99-406f-8935-bb4241e9616b
 email: rstevens@idc.com
-first_name: Richard
-last_name: Stevens
+name: Richard Stevens
+organization_sector: IDC Italy
+job_title: Consulting Director
+country: Italy
 id: 0ab581ef-ee9e-4979-bc1b-fff374c1312d
 ---
 Consulting Director, IDC Italy

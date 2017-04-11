@@ -1,37 +1,42 @@
-<section class="height-100 imagebg text-center" data-overlay="4">
+<section class="height-100 imagebg space-bottom--xxlg" data-overlay="4">
 	<div class="background-image-holder"><img alt="background" src="{{theme:asset src="img/agency-1.jpg"}}"></div>
 	<div class="container pos-vertical-center">
 		<div class="row">
-			<div class="col-sm-7 col-md-5">
-				<h2>Login to continue</h2>
-				{{ if errors }}
-					<div class="alert alert-danger">
-					{{ errors }}
-						{{ value }}<br>
-					{{ /errors }}
-					</div>
-				{{ /else }}
-				<p class="lead">
-					Welcome back, sign in with your account credentials
-				</p>
-				{{ /if }}
-				{{ user:login_form redirect="/home" }}
+			<div class="col-sm-6 col-sm-offset-3">
+				<div class="boxed boxed--border">
+					<h2>Login to continue</h2>
+					{{ user:login_form redirect="/home" }}
+
+				    {{ if errors }}
+				        <strong>Error!</strong>
+						<ul>
+							{{ errors }}
+								<li>{{ value }}</li>
+							{{ /errors }}
+						</ul>
+				    {{ else }}
+					<p class="lead">
+						Welcome back, sign in with your account credentials
+					</p>
+					{{ /if }}
 					<div class="row">
 						<div class="col-sm-12">
-							<!-- <label>Username</label> -->
-                						<input type="text" name="username" value="{{ old:username }}" />
+							<label>Email</label>
+	            			<input type="text" name="email" value="{{ old:email }}" />
 						</div>
 						<div class="col-sm-12">
-							<!-- <label>Password</label> -->
-                						<input type="password" name="password" value="{{ old:password }}" />
+							<label>Password</label>
+	            			<input type="password" name="password" value="{{ old:password }}" />
 						</div>
 						<div class="col-sm-12">
 							<button class="btn btn--primary type--uppercase" type="submit">Login</button>
 						</div>
 					</div>
-				{{ /user:login_form }}
-				<span class="type--fine-print block">Dont have an account yet? <a href="/register">Create account</a></span>
-				<span class="type--fine-print block">Forgot your username or password? <a href="/forgot-password">Recover account</a></span>
+
+					{{ /user:login_form }}
+					<span class="type--fine-print block">Dont have an account yet? <a href="/register">Create account</a></span>
+					<span class="type--fine-print block">Forgot your username or password? <a href="/forgot-password">Recover account</a></span>
+				</div>
 			</div>
 		</div>
 	</div>

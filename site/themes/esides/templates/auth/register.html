@@ -1,43 +1,58 @@
-<section class="height-100 imagebg text-center" data-overlay="4">
+<section class="height-100 imagebg space-bottom--xxlg" data-overlay="4">
 	<div class="background-image-holder"><img alt="background" src="{{theme:asset src="img/agency-1.jpg"}}"></div>
 	<div class="container pos-vertical-center">
 		<div class="row">
-			<div class="col-sm-7 col-md-5">
-			<h2>Register</h2>
-				{{ if errors }}
-				<div class="alert alert-danger">
-					{{ errors }}
-					{{ value }}<br>
-					{{ /errors }}
+			<div class="col-sm-6 col-sm-offset-3">
+				<div class="boxed boxed--border">
+					<h2>Register</h2>
+					{{ user:register_form redirect="/home" }}
+						{{ if errors }}
+						<strong>Error!</strong>
+						<ul>
+							{{ errors }}
+								<li>{{ value }}</li>
+							{{ /errors }}
+						</ul>
+						{{ else }}
+						<p class="lead">
+							Welcome please register using the form below
+						</p>
+						{{ /if }}
+						<div class="row">
+							<div class="col-sm-6">
+								<label>Full Name</label>
+								<input type="text" name="name" value="{{ old:name }}" />
+							</div>
+							<div class="col-sm-6">
+								<label>Email</label>
+								<input type="text" name="email" value="{{ old:email }}" />
+							</div>
+							<div class="col-sm-6">
+								<label>Password</label>
+								<input type="password" name="password" value="{{ old:password }}"/>
+							</div>
+							<div class="col-sm-6">
+								<label>Password Confirmation</label>
+								<input type="password" name="password_confirmation" value=""/>
+							</div>
+							<div class="col-sm-12">
+								<label>Organization / Sector</label>
+								<input type="text" name="organization_sector" value="{{ old:organization_sector }}" />
+							</div>
+							<div class="col-sm-12">
+								<label>Job Title</label>
+								<input type="text" name="job_title" value="{{ old:job_title }}" />
+							</div>
+							<div class="col-sm-12">
+								<label>Country</label>
+								<input type="text" name="country" value="{{ old:country }}" />
+							</div>
+							<div class="col-sm-12">
+								<button class="btn btn--primary type--uppercase" type="submit">Register</button>
+							</div>
+						</div>
+					{{ /user:register_form }}
 				</div>
-				{{ /else }}
-				<p class="lead">
-					Welcome back, sign in with your account credentials
-				</p>
-				{{ /if }}
-				{{ user:register_form redirect="/account" }}
-				<div class="row">
-					<div class="col-sm-12">
-						<!-- <label>Username</label> -->
-						<input type="text" name="username" value="{{ old:username }}" placeholder="Username" />
-					</div>
-					<div class="col-sm-12">
-						<!-- <label>Email</label> -->
-						<input type="email" name="email" value="{{ old:email }}" placeholder="Email" />
-					</div>
-					<div class="col-sm-12">
-						<!-- <label>Password</label> -->
-						<input type="password" name="password" value="{{ old:password }}" placeholder="Password" />
-					</div>
-					<div class="col-sm-12">
-						<!-- <label>Password Confirmation</label> -->
-						<input type="password" name="password_confirmation" value="" placeholder="Confirm Password" />
-					</div>
-					<div class="col-sm-12">
-						<button class="btn btn--primary type--uppercase" type="submit">Register</button>
-					</div>
-				</div>
-				{{ /user:register_form }}
 			</div>
 		</div>
 	</div>

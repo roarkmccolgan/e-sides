@@ -1,0 +1,11 @@
+{{ if icon_type == "icon-File-TextImage" || icon_type == "icon-File-Word" || icon_type == "icon-File-Excel" || icon_type == "icon-File-Pie" && file}}
+	{{ partial:embed-pdf }}
+{{ elseif icon_type == "icon-Video-3" && !file && youtube_url}}
+	{{ partial:embed-youtube }}
+{{ elseif icon_type == "icon-Video-3" && file && !youtube_url}}
+	{{ partial:embed-video }}
+{{ elseif icon_type == "icon-Bulleted-List" && !file && !youtube_url}}
+	{{ partial:embed-poll }}
+{{ else }}
+	{{ partial:embed-default }}
+{{ /if }}

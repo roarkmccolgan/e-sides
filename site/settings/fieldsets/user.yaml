@@ -1,24 +1,28 @@
 hide: true
 taxonomies: false
+title: User
+create_title: ""
 fields:
-  username:
-    type: text
-    display: Username
-    width: 50
   roles:
     type: user_roles
     width: 50
   email:
     type: text
     display: Email address
-  first_name:
+  name:
     type: text
-    display: First Name
+    display: Full name
     width: 50
-  last_name:
+    validate: required
+  organization_sector:
     type: text
-    display: Last Name
-    width: 50
-  content:
-    type: textarea
-    display: Biography
+    display: Organization / Sector
+    validate: required
+  job_title:
+    type: text
+    display: Job Title
+    validate: required
+  country:
+    type: text
+    display: Country
+    validate: required

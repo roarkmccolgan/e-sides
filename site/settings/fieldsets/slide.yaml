@@ -14,10 +14,20 @@ fields:
     container: main
     folder: slides
     restrict: true
-    max_files: "1"
+    max_files: 1
   button:
     type: array
     display: button
     keys:
       btn-link: Link
       btn-text: Text
+  video:
+    type: assets
+    display: Video
+    container: main
+    folder: media
+    restrict: true
+    max_files: 1
+  youtube_url:
+    type: text
+    display: Youtube URL
