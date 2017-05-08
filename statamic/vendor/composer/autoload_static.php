@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit39a83a9345a5e7d95cf3602d5c905610
+class ComposerStaticInit7bf805fc23b8eff48bece477b266b0ad
 {
     public static $files = array (
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
@@ -2675,7 +2675,6 @@ class ComposerStaticInit39a83a9345a5e7d95cf3602d5c905610
         'Statamic\\Contracts\\HasFieldset' => __DIR__ . '/../..' . '/core/Contracts/HasFieldset.php',
         'Statamic\\Contracts\\Imaging\\ImageManipulator' => __DIR__ . '/../..' . '/core/Contracts/Imaging/ImageManipulator.php',
         'Statamic\\Contracts\\Imaging\\UrlBuilder' => __DIR__ . '/../..' . '/core/Contracts/Imaging/UrlBuilder.php',
-        'Statamic\\Contracts\\Importing\\Importer' => __DIR__ . '/../..' . '/core/Contracts/Importing/Importer.php',
         'Statamic\\Contracts\\Permissions\\Permissible' => __DIR__ . '/../..' . '/core/Contracts/Permissions/Permissible.php',
         'Statamic\\Contracts\\Permissions\\Role' => __DIR__ . '/../..' . '/core/Contracts/Permissions/Role.php',
         'Statamic\\Contracts\\Permissions\\RoleFactory' => __DIR__ . '/../..' . '/core/Contracts/Permissions/RoleFactory.php',
@@ -2743,10 +2742,12 @@ class ComposerStaticInit39a83a9345a5e7d95cf3602d5c905610
         'Statamic\\Events\\Data\\AssetFolderDeleted' => __DIR__ . '/../..' . '/core/Events/Data/AssetFolderDeleted.php',
         'Statamic\\Events\\Data\\AssetReplaced' => __DIR__ . '/../..' . '/core/Events/Data/AssetReplaced.php',
         'Statamic\\Events\\Data\\AssetUploaded' => __DIR__ . '/../..' . '/core/Events/Data/AssetUploaded.php',
+        'Statamic\\Events\\Data\\CollectionDeleted' => __DIR__ . '/../..' . '/core/Events/Data/CollectionDeleted.php',
         'Statamic\\Events\\Data\\DataDeleted' => __DIR__ . '/../..' . '/core/Events/Data/DataDeleted.php',
         'Statamic\\Events\\Data\\EntryDeleted' => __DIR__ . '/../..' . '/core/Events/Data/EntryDeleted.php',
         'Statamic\\Events\\Data\\GlobalsDeleted' => __DIR__ . '/../..' . '/core/Events/Data/GlobalsDeleted.php',
         'Statamic\\Events\\Data\\PageDeleted' => __DIR__ . '/../..' . '/core/Events/Data/PageDeleted.php',
+        'Statamic\\Events\\Data\\TaxonomyDeleted' => __DIR__ . '/../..' . '/core/Events/Data/TaxonomyDeleted.php',
         'Statamic\\Events\\Data\\TermDeleted' => __DIR__ . '/../..' . '/core/Events/Data/TermDeleted.php',
         'Statamic\\Events\\Data\\UserDeleted' => __DIR__ . '/../..' . '/core/Events/Data/UserDeleted.php',
         'Statamic\\Events\\Data\\UserGroupDeleted' => __DIR__ . '/../..' . '/core/Events/Data/UserGroupDeleted.php',
@@ -2845,6 +2846,7 @@ class ComposerStaticInit39a83a9345a5e7d95cf3602d5c905610
         'Statamic\\Http\\Controllers\\EntriesController' => __DIR__ . '/../..' . '/core/Http/Controllers/EntriesController.php',
         'Statamic\\Http\\Controllers\\FieldsetController' => __DIR__ . '/../..' . '/core/Http/Controllers/FieldsetController.php',
         'Statamic\\Http\\Controllers\\FormsController' => __DIR__ . '/../..' . '/core/Http/Controllers/FormsController.php',
+        'Statamic\\Http\\Controllers\\GetsTaxonomiesFromFieldsets' => __DIR__ . '/../..' . '/core/Http/Controllers/GetsTaxonomiesFromFieldsets.php',
         'Statamic\\Http\\Controllers\\GlideController' => __DIR__ . '/../..' . '/core/Http/Controllers/GlideController.php',
         'Statamic\\Http\\Controllers\\GlobalsController' => __DIR__ . '/../..' . '/core/Http/Controllers/GlobalsController.php',
         'Statamic\\Http\\Controllers\\ImportController' => __DIR__ . '/../..' . '/core/Http/Controllers/ImportController.php',
@@ -2901,13 +2903,13 @@ class ComposerStaticInit39a83a9345a5e7d95cf3602d5c905610
         'Statamic\\Imaging\\PresetGenerator' => __DIR__ . '/../..' . '/core/Imaging/PresetGenerator.php',
         'Statamic\\Imaging\\StaticUrlBuilder' => __DIR__ . '/../..' . '/core/Imaging/StaticUrlBuilder.php',
         'Statamic\\Imaging\\ThumbnailUrlBuilder' => __DIR__ . '/../..' . '/core/Imaging/ThumbnailUrlBuilder.php',
-        'Statamic\\Importing\\Importer' => __DIR__ . '/../..' . '/core/Importing/Importer.php',
         'Statamic\\Importing\\Statamic\\Migrator' => __DIR__ . '/../..' . '/core/Importing/Statamic/Migrator.php',
         'Statamic\\Importing\\Statamic\\Preparer' => __DIR__ . '/../..' . '/core/Importing/Statamic/Preparer.php',
         'Statamic\\Importing\\Statamic\\StatamicImporter' => __DIR__ . '/../..' . '/core/Importing/Statamic/StatamicImporter.php',
         'Statamic\\Jobs\\Job' => __DIR__ . '/../..' . '/core/Jobs/Job.php',
         'Statamic\\Listeners\\FlushCache' => __DIR__ . '/../..' . '/core/Listeners/FlushCache.php',
         'Statamic\\Listeners\\GeneratePresetImageManipulations' => __DIR__ . '/../..' . '/core/Listeners/GeneratePresetImageManipulations.php',
+        'Statamic\\Listeners\\UpdateRoutes' => __DIR__ . '/../..' . '/core/Listeners/UpdateRoutes.php',
         'Statamic\\Listeners\\UpdateSearchIndex' => __DIR__ . '/../..' . '/core/Listeners/UpdateSearchIndex.php',
         'Statamic\\Logging\\LoggingHandler' => __DIR__ . '/../..' . '/core/Logging/LoggingHandler.php',
         'Statamic\\Outpost' => __DIR__ . '/../..' . '/core/Outpost.php',
@@ -2936,6 +2938,9 @@ class ComposerStaticInit39a83a9345a5e7d95cf3602d5c905610
         'Statamic\\Providers\\ValidationServiceProvider' => __DIR__ . '/../..' . '/core/Providers/ValidationServiceProvider.php',
         'Statamic\\Providers\\ViewServiceProvider' => __DIR__ . '/../..' . '/core/Providers/ViewServiceProvider.php',
         'Statamic\\Repositories\\AddonRepository' => __DIR__ . '/../..' . '/core/Repositories/AddonRepository.php',
+        'Statamic\\Routing\\ExceptionRoute' => __DIR__ . '/../..' . '/core/Routing/ExceptionRoute.php',
+        'Statamic\\Routing\\Route' => __DIR__ . '/../..' . '/core/Routing/Route.php',
+        'Statamic\\Routing\\Router' => __DIR__ . '/../..' . '/core/Routing/Router.php',
         'Statamic\\Search\\Index' => __DIR__ . '/../..' . '/core/Search/Index.php',
         'Statamic\\Search\\Search' => __DIR__ . '/../..' . '/core/Search/Search.php',
         'Statamic\\Stache\\AggregateRepository' => __DIR__ . '/../..' . '/core/Stache/AggregateRepository.php',
@@ -3788,10 +3793,10 @@ class ComposerStaticInit39a83a9345a5e7d95cf3602d5c905610
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit39a83a9345a5e7d95cf3602d5c905610::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit39a83a9345a5e7d95cf3602d5c905610::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit39a83a9345a5e7d95cf3602d5c905610::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInit39a83a9345a5e7d95cf3602d5c905610::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit7bf805fc23b8eff48bece477b266b0ad::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit7bf805fc23b8eff48bece477b266b0ad::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit7bf805fc23b8eff48bece477b266b0ad::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit7bf805fc23b8eff48bece477b266b0ad::$classMap;
 
         }, null, ClassLoader::class);
     }

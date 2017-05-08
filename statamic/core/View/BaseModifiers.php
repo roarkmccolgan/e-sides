@@ -28,9 +28,7 @@ class BaseModifiers extends Modifier
      */
     public function add($value, $params, $context)
     {
-        $number = array_get($context, $params[0], $params[0]);
-
-        return ($value + $number);
+        return $value + $this->getMathModifierNumber($params, $context);
     }
 
     /**
@@ -324,9 +322,7 @@ class BaseModifiers extends Modifier
      */
     public function divide($value, $params, $context)
     {
-        $number = array_get($context, $params[0], $params[0]);
-
-        return ($value / $number);
+        return $value / $this->getMathModifierNumber($params, $context);
     }
 
     /**
@@ -1125,9 +1121,7 @@ class BaseModifiers extends Modifier
      */
     public function multiply($value, $params, $context)
     {
-        $number = array_get($context, $params[0], $params[0]);
-
-        return ($value * $number);
+        return $value * $this->getMathModifierNumber($params, $context);
     }
 
     /**
@@ -1641,9 +1635,7 @@ class BaseModifiers extends Modifier
      */
     public function subtract($value, $params, $context)
     {
-        $number = array_get($context, $params[0], $params[0]);
-
-        return ($value - $number);
+        return $value - $this->getMathModifierNumber($params, $context);
     }
 
     /**
@@ -1953,6 +1945,24 @@ class BaseModifiers extends Modifier
     }
 
     /**
+     * Filters the data by a given key / value pair
+     *
+     * @param array $value
+     * @param $params
+     *
+     * @return Collection
+     */
+    public function where($value, $params)
+    {
+        $key = array_get($params, 0);
+        $val = array_get($params, 1);
+
+        $collection = collect($value)->whereLoose($key, $val);
+
+        return $collection->all();
+    }
+
+    /**
      * Attempts to prevent widows in a string by adding
      * <nobr> tags between the last two words of each paragraph.
      *
@@ -2018,5 +2028,16 @@ class BaseModifiers extends Modifier
         }
 
         return $attributes;
+    }
+
+    private function getMathModifierNumber($params, $context)
+    {
+        $number = $params[0];
+
+        // If the number is already a number, use that. Otherwise, attempt to resolve it
+        // from a value in the context. This allows users to specify a variable name.
+        return (is_numeric($number))
+            ? $number
+            : array_get($context, $number, $number);
     }
 }

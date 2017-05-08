@@ -144,9 +144,13 @@ class CollectionTags extends Tags
     {
         // If a boolean taxonomy parameter has been provided, retrieve the collection
         // associated with the URI. Otherwise, get it from any taxonomy parameters.
-        $taxonomyCollection = ($this->getBool('taxonomy', false))
-            ? $this->getTaxonomyCollectionFromUri()
-            : $this->getTaxonomyCollectionFromParams($collection);
+        if ($this->get('taxonomy') === 'false') {
+            return false;
+        } elseif ($this->get('taxonomy') === 'true') {
+            $taxonomyCollection = $this->getTaxonomyCollectionFromUri();
+        } else {
+            $taxonomyCollection = $this->getTaxonomyCollectionFromParams($collection);
+        }
 
         // If neither option returns a collection, then a taxonomy option
         // wasn't selected. We'll just stop right here and move along.
@@ -157,7 +161,9 @@ class CollectionTags extends Tags
         // Make sure the entries belong to the specified collection(s)
         $collections = Helper::ensureArray($collection);
 
-        return $taxonomyCollection->filter(function ($entry) use ($collections) {
+        return $taxonomyCollection->filter(function ($entry) {
+            return $entry instanceof \Statamic\Contracts\Data\Entries\Entry;
+        })->filter(function ($entry) use ($collections) {
             return in_array($entry->collectionName(), $collections);
         });
     }
@@ -174,6 +180,13 @@ class CollectionTags extends Tags
 
     private function getTaxonomyCollectionFromParams($collection)
     {
+        // If a taxonomy parameter was provided without any suffix, we will assume that the terms are stored in there.
+        if (array_key_exists('taxonomy', $this->parameters)) {
+            $terms = $this->parameters['taxonomy'];
+            $terms = is_string($terms) ? Helper::explodeOptions($terms) : $terms;
+            return $this->getCollectionWhereMultipleTermsExist($collection, $terms);
+        }
+
         // Gather any parameters that match `taxonomy:[handle]`.
         $params = collect($this->parameters)->filterWithKey(function ($value, $key) {
             return Str::startsWith($key, 'taxonomy:');
@@ -207,6 +220,11 @@ class CollectionTags extends Tags
             return empty($arr['terms']);
         });
 
+        // If there are no collections at this point, the parameter values may have all been empty.
+        if ($collections->isEmpty()) {
+            return $this->getEntryCollection($collection);
+        }
+
         $collections = $collections->map(function ($arr) use ($collection) {
             // Grab the collection using the appropriate method
             $entries = ($arr['method'] === 'any')
@@ -228,6 +246,22 @@ class CollectionTags extends Tags
         }
 
         return collect_entries($entries);
+    }
+
+    private function getCollectionWhereMultipleTermsExist($collection, $terms)
+    {
+        return $this
+            ->getEntryCollection($collection)
+            ->filter(function ($entry) use ($terms) {
+                foreach ($terms as $id) {
+                    list($taxonomy, $term) = explode('/', $id);
+                    $entryTerms = collect(Helper::ensureArray($entry->get($taxonomy, [])));
+
+                    if ($entryTerms->contains($term)) {
+                        return true;
+                    }
+                }
+            });
     }
 
     private function getAllTaxonomyCollection($taxonomy, $slugs, $collection)

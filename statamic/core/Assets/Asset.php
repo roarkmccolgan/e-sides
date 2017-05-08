@@ -476,6 +476,7 @@ class Asset extends Data implements AssetContract
         $ext       = $file->getClientOriginalExtension();
 
         $directory = $this->folder();
+        $directory = ($directory === '.') ? '/' : $directory;
         $path      = Path::tidy($directory . '/' . $filename . '.' . $ext);
 
         // If the file exists, we'll append a timestamp to prevent overwriting.
@@ -604,5 +605,15 @@ class Asset extends Data implements AssetContract
     public function extensionIsOneOf($filetypes = [])
     {
         return (in_array(strtolower($this->extension()), $filetypes));
+    }
+
+    /**
+     * Whether the data can be taxonomized
+     *
+     * @return bool
+     */
+    public function isTaxonomizable()
+    {
+        return false;
     }
 }

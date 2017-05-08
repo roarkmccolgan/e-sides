@@ -2,10 +2,10 @@
 id: fb6b887c-c529-4deb-94f0-b82fbe3341a8
 super: true
 name: Roark McColgan
+email: roarkmccolgan@gmail.com
 organization_sector: IDC
 job_title: Developer
 country: South Africa
-email: roarkmccolgan@gmail.com
-password_hash: sprite
+password_hash: $2y$10$Hi4UFuuW2gJr2SzYGVralOK9qxNEw2rYCn697SjX.fZpelgP6z7Ru
 ---
 I'm The Dev
