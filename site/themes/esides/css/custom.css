@@ -24,6 +24,13 @@ html{
 	display: table-cell;
 	vertical-align: middle;
 }
+.front, .back {
+	padding: 1em;
+}
+.front{
+	text-align: center;
+	display: table;
+}
 .bg--dark .phase:not([class*='bg-']).phase--border, .imagebg:not(.image--light) .phase:not([class*='bg-']).phase--border {
     border-color: #3f3f3f;
 }
