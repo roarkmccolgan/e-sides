@@ -1,7 +1,7 @@
 ---
 title: Test Video Upload
-file: /assets/media/BigBuckBunny_320x180.mp4
 icon_type: icon-Video-3
+file: /assets/media/BigBuckBunny_320x180.mp4
 media: videos
 phase:
   - phase-1

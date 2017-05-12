@@ -1,7 +1,7 @@
 ---
 title: Test PDF
-file: /assets/media/document.pdf
 icon_type: icon-File-TextImage
+file: /assets/media/document.pdf
 media: public-reports
 phase:
   - phase-1

@@ -1,7 +1,7 @@
 ---
 title: Test Youtube Link
-youtube_url: https://www.youtube.com/embed/NHHLISaLe44
 icon_type: icon-Video-3
+youtube_url: https://www.youtube.com/embed/NHHLISaLe44
 media: videos
 phase:
   - phase-2
