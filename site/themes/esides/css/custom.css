@@ -10,7 +10,14 @@ html{
 .radial .radial__label {
 	text-align: center;
 }
-
+.notification.notification--reveal {
+  pointer-events: auto;
+  position: initial;
+}
+.notification.notification--dismissed {
+  pointer-events: none;
+  position: fixed;
+}
 .phase {
 	border: 1px solid #ececec;
 	border-color: #3f3f3f;
