@@ -1,66 +1,85 @@
-/* entire container, keeps perspective */
+/*
+***************************
+http://davidwalsh.name/css-flip [IE version]
+***************************
+1. work in Safari 7.0.1
+2. work in Chrome 32.0.1700.107
+3. work partially in Firefox 27
+*/
+
+.container {
+	width: 70%;
+	margin: auto;
+	margin-top: 20px;
+	background: red;
+}
+
 .flip-container {
+	margin: auto;
+	/* keeps perspective in the entire container */
+	-webkit-perspective: 1000px;
+	-moz-perspective: 1000px;
 	perspective: 1000px;
-	transform-style: preserve-3d;
-}
-	/*  UPDATED! flip the pane when hovered */
-	.flip-container:hover .back {
-		transform: rotateY(0deg);
-	}
-	.flip-container:hover .front {
-	    transform: rotateY(180deg);
-	}
-
-.flip-container, .front, .back {
-	width: 320px;
-	height: 480px;
 }
 
-/* flip speed goes here */
-.flipper {
-	transition: 0.6s;
-	transform-style: preserve-3d;
-
-	position: relative;
-}
-
-/* hide back of pane during swap */
-.front, .back {
-	backface-visibility: hidden;
-	transition: 0.6s;
-	transform-style: preserve-3d;
-
-	position: absolute;
-	top: 0;
-	left: 0;
-}
-
-/*  UPDATED! front pane, placed above back */
-.front {
-	z-index: 2;
+/* flip the pane when hovered */
+.flip-container:hover .back {
 	transform: rotateY(0deg);
 }
 
-/* back, initially hidden pane */
-.back {
-	transform: rotateY(-180deg);
+/* flip the pane when hovered */
+.flip-container:hover .front {
+	-webkit-transform: rotateY(180deg);
+	-moz-transform: rotateY(180deg);
+	-o-transform: rotateY(180deg);
+	-ms-transform: rotateY(180deg);
+	transform: rotateY(180deg);
 }
 
-/* 
-	Some vertical flip updates 
-*/
-.vertical.flip-container {
+.flip-container, .front, .back {
+	width: 240px;
+	height: 240px;
+}
+
+.flipper {
 	position: relative;
 }
 
-	.vertical .back {
-		transform: rotateX(180deg);
-	}
+.front, .back {
+	position: absolute;
+	top: 0;
+	left: 0;
+	/* hide back of pane during swap */
+	-webkit-backface-visibility: hidden;
+	-moz-backface-visibility: hidden;
+	backface-visibility: hidden;
+	/* flip speed goes here (for IE compatibility)
+	Else put it in .flipper */
+	-webkit-transition: 0.4s;
+	-moz-transition: 0.4s;
+	-o-transition: 0.4s;
+	-ms-transition: 0.4s;
+	transition: 0.4s;
+	-webkit-transform-style: preserve-3d;
+	-moz-transform-style: preserve-3d;
+	-ms-transform-style: preserve-3d;
+	transform-style: preserve-3d;
+}
 
-	.vertical.flip-container:hover .back {
-	    transform: rotateX(0deg);
-	}
+.front {
+	z-index: 2;
+	background: silver;
+	text-align: center;
+	line-height: 240px;
+	font-size: 80px;
+	color: #005e5c;
+}
 
-	.vertical.flip-container:hover .front {
-	    transform: rotateX(180deg);
-	}
+/* original position of the image (reverse horizontal symetry) */
+.back {
+	-webkit-transform: rotateY(-180deg);
+	-moz-transform: rotateY(-180deg);
+	-o-transform: rotateY(-180deg);
+	-ms-transform: rotateY(-180deg);
+	transform: rotateY(-180deg);
+}
