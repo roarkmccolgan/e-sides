@@ -12,7 +12,7 @@ html{
 }
 .notification.notification--reveal {
   pointer-events: auto;
-  position: initial;
+  position: fixed;
 }
 .notification.notification--dismissed {
   pointer-events: none;
