@@ -19,7 +19,7 @@
         <link href="{{ theme:css src="theme-serpent" }}" rel="stylesheet" type="text/css" media="all" />
         <link href="{{ theme:css src="flip" }}" rel="stylesheet" type="text/css" media="all" />
         {{ yield:extra_css }}
-        <link href="{{ theme:css src="custom" }}" rel="stylesheet" type="text/css" media="all" />
+        <link href="{{ theme:css src="custom" }}?id=2" rel="stylesheet" type="text/css" media="all" />
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:200,300,400,400i,500,600,700" rel="stylesheet">  
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:200,300,400,400i,500,600,700%7CMerriweather:300,300i%7CMaterial+Icons" rel="stylesheet">
           
@@ -45,6 +45,32 @@
         {{ yield:extra_scripts }}
         <script src="{{ theme:js src="scripts" }}"></script>
         {{ yield:page_scripts }}
+        <script type="text/javascript">
+            $.fn.isOnScreen = function(){
+                var win = $(window);
+                
+                var viewport = {
+                    top : win.scrollTop(),
+                    left : win.scrollLeft()
+                };
+                viewport.right = viewport.left + win.width();
+                viewport.bottom = viewport.top + win.height();
+                
+                var bounds = this.offset();
+                bounds.right = bounds.left + this.outerWidth();
+                bounds.bottom = bounds.top + this.outerHeight();
+                
+                return (!(viewport.right < bounds.left || viewport.left > bounds.right || viewport.bottom < bounds.top || viewport.top > bounds.bottom));
+                
+            };
+            $(function() {
+                if($('footer').isOnScreen()){
+                    $('footer').addClass('footer--sticky');
+                }else{
+                    $('footer').removeClass('footer--sticky');
+                }
+            });            
+        </script>
     </body>
 </html>
 				

@@ -1,6 +1,4 @@
 collections:
-  blog: '/blog/{year}/{month}/{day}/{slug}'
-  things: '/things/{slug}'
   events: '/events/{slug}'
   articles: '/news-events/{slug}'
   collection-assets: '/collection-assets/{slug}'

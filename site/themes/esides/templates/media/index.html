@@ -21,7 +21,7 @@
                     <div class="row">
                         <div class="masonry__container">
                         	{{ items }}
-								<div class="masonry__item col-xs-12 col-sm-6" data-masonry-filter="{{ if phase }}{{ phase }}{{ title }}{{ /phase }}{{ /if }}, {{ media }}">
+								<div class="masonry__item col-xs-12 col-sm-6" data-masonry-filter="{{ media }}"> <!-- {{ if phase }}{{ phase }}{{ title }}{{ /phase }}{{ /if }},  -->
 									{{ if phase }}
 										{{ phase }}
 											<span class="label">{{ title }}</span>
@@ -56,6 +56,51 @@
     <!-- <script src="articles.js"></script>
     <script id="dsq-count-scr" src="//e-sides.disqus.com/count.js" async></script> -->
     <script type="text/javascript">
-    	
+		/*var filterFns = {
+			isphase1: function() {
+				var phase = $(this).data('phase');
+				return phase == 'Phase 1';
+			},
+			isphase2: function() {
+				var phase = $(this).data('phase');
+				return phase == 'Phase 2';
+			},
+		};
+		var filters = {};
+		var $grid = $('.masonry__container').isotope({
+			itemSelector: '.masonry__item',
+			filter: function() {
+				var isMatched = true;
+				var $this = $(this);
+
+				for ( var prop in filters ) {
+					var filter = filters[ prop ];
+					// use function if it matches
+					filter = filterFns[ filter ] || filter;
+					// test each filter
+					if ( filter ) {
+						isMatched = isMatched && $(this).is( filter );
+					}
+					// break if not matched
+					if ( !isMatched ) {
+						break;
+					}
+				}
+				return isMatched;
+			}
+		});
+
+
+
+		$('#filters').on( 'click', 'a.btn', function() {
+		  var $this = $(this);
+		  // get group key
+		  var $buttonGroup = $this.parents('.button-group');
+		  var filterGroup = $buttonGroup.attr('data-filter-group');
+		  // set filter for group
+		  filters[ filterGroup ] = $this.attr('data-filter');
+		  // arrange, and use filter fn
+		  $grid.isotope();
+		});*/
     </script>
 {{ /section:page_scripts }}

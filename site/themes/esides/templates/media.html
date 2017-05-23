@@ -1,0 +1,20 @@
+{{ if icon_type == "icon-File-TextImage" || icon_type == "icon-File-Word" || icon_type == "icon-File-Excel" || icon_type == "icon-File-Pie" && file}}
+	{{ partial:embed-pdf }}
+{{ elseif icon_type == "icon-Video-3" && !file && youtube_url}}
+	{{ partial:embed-youtube }}
+{{ elseif icon_type == "icon-Video-3" && file && !youtube_url}}
+	{{ partial:embed-video }}
+{{ else }}
+<section class="bg--dark space--xxs">
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-12">
+				<h1 class="h2">{{ title }}</h1>
+			</div>
+			<div class="col-xs-12">
+				{{ content }}
+			</div>	
+		</div>
+	</div>
+</section>
+{{ /if }}
