@@ -23,7 +23,7 @@
 	<div class="notification pos-right pos-top side-menu bg--white" data-notification-link="sidebar-menu" data-animation="from-right">
 		<div class="side-menu__module pos-vertical-center text-right">
 			<ul class="menu-vertical">
-				{{ nav from="/" include_home="true" scope="tag" }}
+				{{ nav from="/" include_home="true" scope="tag" is_hidden:isnt="true" }}
 				<li class="h4 {{ if is_current or is_parent }}active{{ /if }}">
 					<a href="{{ url }}">{{ tag:nav_title or title }}</a>
 				</li>

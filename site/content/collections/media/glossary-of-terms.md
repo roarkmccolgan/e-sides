@@ -1,7 +1,7 @@
 ---
 title: Glossary
-youtube_url: ""
 icon_type: icon-Address-Book2
+youtube_url: ""
 media: glossary-items
 phase:
   - phase-1
@@ -14,7 +14,7 @@ id: 993924cc-7c59-4e10-9096-33f8075a6fde
 	Science focusing on mimicking human intelligence.
 </p>
 <p><strong>Big data</strong><br>
-	Datasets that are so large or complex that traditional data processing technologies are inadequate to deal with them. Big data is often characterized by 3 Vs: Volume, Velocity and Variety, sometimes complemented with addition Vs, such as Veracity and Value.
+	Datasets that are so large or complex that traditional data processing technologies are inadequate to deal with them. Big data is often characterized by 3 Vs: Volume, Velocity and Variety, sometimes complemented with additional Vs, such as Veracity and Value.
 </p>
 <p><strong>Big data technologies</strong><br>
 	Information technologies for storing, processing, analyzing, disseminating and managing big data.
@@ -53,7 +53,7 @@ id: 993924cc-7c59-4e10-9096-33f8075a6fde
 	Using data for different purposes than for which they were initially collected, but still in the same context as the original purpose.
 </p>
 <p class="p5"><strong>Data recontextualization</strong><br>
-	class="p5"&gt;Using data in another context than in which they were initially collected.
+	Using data in another context than in which they were initially collected.
 </p>
 <p><strong>Data warehouses</strong><br>
 	System for storing, reporting and analyzing data.
