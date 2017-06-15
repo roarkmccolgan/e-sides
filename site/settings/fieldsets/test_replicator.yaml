@@ -7,6 +7,10 @@ fields:
   content:
     type: redactor
     display: Article / Description
+    settings: Standard
+    container: main
+    folder: newsevents
+    restrict_assets: true
   image:
     type: assets
     display: Main Image
