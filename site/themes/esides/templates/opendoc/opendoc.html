@@ -1,0 +1,22 @@
+{{ user:isnt role="view" }}
+    {{ redirect to="/login?redirect=/collaborative-platform" }}
+{{ /user:isnt }}
+<section class="unpad bg--dark">
+	<article>
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-12">
+					<div class="article__title">
+						<h1>Collaborative Platform</h1>
+						<span> {{ title }}</span>
+					</div>
+				</div>
+				<div class="col-sm-12">
+					<div class="article__body">
+						<iframe height="1200" src="{{ doc_url }}"></iframe>
+					</div>
+				</div>	
+			</div>
+		</div>
+	</article>
+</section>

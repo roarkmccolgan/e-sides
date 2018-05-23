@@ -1,6 +1,6 @@
 <template>
 
-    <tr @click="toggle" @dblclick="editAsset" :class="{ 'selected': isSelected }">
+    <tr @click="toggle" @dblclick="doubleClicked" :class="{ 'selected': isSelected }">
 
         <td class="thumbnail-col" @dragstart="assetDragStart">
             <div v-if="canShowSvg"
@@ -13,22 +13,22 @@
             </div>
         </td>
 
-        <td>
+        <td class="title-col">
             <span v-if="asset.title !== asset.filename" :title="asset.basename">{{ asset.title }}</span>
             <span v-else>{{ asset.basename }}</span>
         </td>
 
-        <td>{{ asset.size_formatted }}</td>
-        <td>{{ asset.last_modified_formatted }}</td>
+        <td class="size-col extra-col">{{ asset.size_formatted }}</td>
+        <td class="modifed-col extra-col">{{ asset.last_modified_formatted }}</td>
 
         <td class="column-actions">
 
-            <div class="btn-group" :class="{ open: showActionsDropdown }">
+            <div class="btn-group action-more" :class="{ open: showActionsDropdown }" v-if="canEdit" v-on-clickaway="away">
                 <button type="button" class="btn-more dropdown-toggle" @click.prevent.stop="toggleActions">
                     <i class="icon icon-dots-three-vertical"></i>
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a href="" @click.prevent="closeDropdownAndEditAsset">{{ translate('cp.edit') }}</a></li>
+                    <li><a @click="closeDropdownAndEditAsset">{{ translate('cp.edit') }}</a></li>
                     <li class="divider"></li>
                     <li class="warning"><a href="" @click.prevent="closeDropdownAndDeleteAsset">{{ translate('cp.delete') }}</a></li>
                 </ul>
@@ -48,6 +48,12 @@ import Row from './Row';
 export default {
 
     mixins: [Asset, Row],
+
+    computed: {
+        canEdit: function() {
+            return this.can('assets:'+ this.asset.container +':edit')
+        }
+    },
 
     methods: {
 

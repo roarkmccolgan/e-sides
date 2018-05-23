@@ -13,8 +13,8 @@ module.exports = {
             columns: [],
             sort: null,
             sortOrder: null,
-            search: null,
-            reordering: false
+            reordering: false,
+            searchTerm: null
         }
     },
 
@@ -37,11 +37,36 @@ module.exports = {
 
         allItemsChecked: function() {
             return this.items.length === this.checkedItems.length;
+        },
+
+        isSearching() {
+            return this.searchTerm.length >= 3;
+        },
+
+        getParameters() {
+            return {
+                sort: this.sort,
+                order: this.sortOrder,
+                page: this.selectedPage
+            };
         }
+
     },
 
     ready: function () {
         this.getItems();
+    },
+
+    watch: {
+
+        searchTerm(term) {
+            if (term.length >= 3) {
+                this.performSearch();
+            } else {
+                this.getItems();
+            }
+        }
+
     },
 
     components: {
@@ -50,15 +75,20 @@ module.exports = {
 
     methods: {
         getItems: function () {
-            this.$http.get(this.ajax.get, {
-                sort: this.sort,
-                order: this.sortOrder,
-                page: this.selectedPage
-            }, function(data, status, request) {
+            this.$http.get(this.ajax.get, this.getParameters, function(data, status, request) {
                 this.items = data.items;
                 this.columns = data.columns;
                 this.loading = false;
                 this.pagination = data.pagination;
+            }).error(function() {
+                alert('There was a problem retrieving data. Check your logs for more details.');
+            });
+        },
+
+        performSearch() {
+            this.$http.get(this.ajax.search + '?q=' + this.searchTerm, function(data, status, request) {
+                this.items = data;
+                this.loading = false;
             }).error(function() {
                 alert('There was a problem retrieving data. Check your logs for more details.');
             });

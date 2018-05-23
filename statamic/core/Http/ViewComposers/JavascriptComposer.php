@@ -2,11 +2,22 @@
 
 namespace Statamic\Http\ViewComposers;
 
-use Statamic\API\URL;
+use Statamic\API\File;
 use Illuminate\Contracts\View\View;
+use Statamic\Extend\Management\AddonRepository;
 
 class JavascriptComposer
 {
+    /**
+     * @var AddonRepository
+     */
+    private $repo;
+
+    public function __construct(AddonRepository $repo)
+    {
+        $this->repo = $repo;
+    }
+
     public function compose(View $view)
     {
         $view->with('scripts', $this->scripts());
@@ -19,9 +30,7 @@ class JavascriptComposer
             return '';
         }
 
-        $scripts = addon_repo()->filter('scripts.js')
-            ->getFiles()
-            ->filterByRegex('/^site\/addons\/[\w_-]+\/resources\/assets\/js\/scripts\.js$/');
+        $scripts = $this->repo->thirdParty()->filename('scripts.js', 'resources/assets/js')->files();
 
         $str = '';
 
@@ -29,7 +38,12 @@ class JavascriptComposer
             $dir = pathinfo($path)['dirname'];
             $parts = explode('/', $dir);
 
-            $str .= '<script src="' . URL::prependSiteRoot(URL::assemble(RESOURCES_ROUTE, 'addons', $parts[2], 'js/scripts.js')) . '"></script>';
+            $str .= sprintf('<script src="%s"></script>', resource_url("addons/{$parts[2]}/js/scripts.js"));
+        }
+
+        // If there's a site helper CP JS file, we'll add that *before* the addon scripts.
+        if (File::exists('site/helpers/cp/scripts.js')) {
+            $str = sprintf('<script src="%s"></script>', resource_url('helpers/cp/scripts.js')) . $str;
         }
 
         return $str;

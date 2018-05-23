@@ -8,6 +8,8 @@ use Statamic\API\Str;
 use Statamic\API\Content;
 use Statamic\API\Term;
 use Statamic\Extend\Tags;
+use Statamic\Extend\Management\FilterLoader;
+use Statamic\SiteHelpers\Filters as SiteHelperFilters;
 
 class TaxonomyTags extends Tags
 {
@@ -54,6 +56,10 @@ class TaxonomyTags extends Tags
 
         $data = $this->terms->toArray();
 
+        if ($as = $this->get('as')) {
+            return $this->parse([$as => $data]);
+        }
+
         return $this->parseLoop($data);
     }
 
@@ -96,9 +102,11 @@ class TaxonomyTags extends Tags
 
         $collections = Helper::explodeOptions($collections);
 
-        $this->terms = $this->terms->filterContent(function($content) use ($collections) {
-            return $content->filter(function($item) use ($collections) {
-                return in_array($item->collectionName(), $collections);
+        $this->terms = $this->terms->filterContent(function ($content) use ($collections) {
+            return $content->filter(function ($item) use ($collections) {
+                if ($item instanceof \Statamic\Data\Entries\Entry) {
+                    return in_array($item->collectionName(), $collections);
+                }
             });
         });
     }
@@ -189,7 +197,7 @@ class TaxonomyTags extends Tags
             // If a "filter" parameter has been specified, we want to use a custom filter class
             // to filter *the taxonomy collection*. If they want to use a custom filter to
             // filter the actual content collection, they can do it from the filter.
-            $this->terms = collection_filter($filter, $this->terms, $this->context, $this->parameters)->filter();
+            $this->terms = $this->customFilter($filter);
         } else {
             // No filter parameter has been specified, so we should filter the content by condition parameters
             $conditions = array_filter_key($this->parameters, function ($key) {
@@ -200,6 +208,22 @@ class TaxonomyTags extends Tags
                 return $content->conditions($conditions);
             });
         }
+    }
+
+    private function customFilter($filter)
+    {
+        $class = app(FilterLoader::class)->load($filter, [
+            'collection' => $this->terms,
+            'context' => $this->context,
+            'parameters' => $this->parameters,
+        ]);
+
+        if ($class instanceof SiteHelperFilters) {
+            $method = Str::studly($filter);
+            return $class->$method($this->terms);
+        }
+
+        return $class->filter($this->terms);
     }
 
     private function sort()

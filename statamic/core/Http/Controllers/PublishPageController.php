@@ -42,11 +42,12 @@ class PublishPageController extends PublishController
             'content_type'      => 'page',
             'status'            => true,
             'is_default_locale' => true,
-            'locale'            => default_locale(),
+            'locale'            => $this->locale($request),
             'locales'           => $this->getLocales(),
             'fieldset'          => $fieldset,
-            'content_data'      => $this->populateWithBlanks($fieldset),
+            'content_data'      => $this->addBlankFields(Fieldset::get($fieldset)),
             'taxonomies'        => $this->getTaxonomies(Fieldset::get($fieldset)),
+            'suggestions'       => $this->getSuggestions(Fieldset::get($fieldset)),
         ]);
     }
 
@@ -59,7 +60,7 @@ class PublishPageController extends PublishController
      */
     public function edit(Request $request, $url = '/')
     {
-        $this->authorize('pages:edit');
+        $this->authorize('pages:view');
 
         if (! $page = $this->page($url)) {
             return redirect()->route('pages')->withErrors('No page found.');
@@ -67,7 +68,7 @@ class PublishPageController extends PublishController
 
         $locale = $this->locale($request);
         $page   = $page->in($locale)->get();
-        $data   = $this->populateWithBlanks($page);
+        $data   = $this->addBlankFields($page->fieldset(), $page->processedData());
 
         return view('publish', [
             'is_new'            => false,
@@ -89,6 +90,7 @@ class PublishPageController extends PublishController
                 'is_home'    => $page->uri() === '/',
                 'parent_url' => URL::parent($url)
             ],
+            'suggestions' => $this->getSuggestions($page->fieldset()),
         ]);
     }
 
@@ -130,5 +132,18 @@ class PublishPageController extends PublishController
     private function locale(Request $request)
     {
         return $request->query('locale', site_locale());
+    }
+
+    /**
+     * Whether the user is authorized to publish the object.
+     *
+     * @param Request $request
+     * @return bool
+     */
+    protected function canPublish(Request $request)
+    {
+        return $request->user()->can(
+            $request->new ? 'pages:create' : 'pages:edit'
+        );
     }
 }

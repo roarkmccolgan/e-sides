@@ -9,12 +9,16 @@ use Statamic\API\Page;
 use Statamic\API\Stache;
 use Statamic\API\Str;
 use Statamic\API\Fieldset;
+use Statamic\API\Taxonomy;
+use Statamic\Http\Requests\PublishRequest;
 use Illuminate\Http\Request;
 use Statamic\Contracts\Data\Users\User;
 use Statamic\Exceptions\PublishException;
 
 abstract class Publisher
 {
+    use ProcessesFields;
+
     /**
      * @var \Illuminate\Http\Request
      */
@@ -60,7 +64,7 @@ abstract class Publisher
      *
      * @param \Illuminate\Http\Request $request
      */
-    public function __construct(Request $request)
+    public function __construct(PublishRequest $request)
     {
         $this->request = $request;
 
@@ -83,7 +87,10 @@ abstract class Publisher
         $this->prepare();
 
         // Fieldtypes may modify the values submitted by the user.
-        $this->processFields();
+        // We will remove the null values for everything except Eloquent-managed users. They need the nulls to override
+        // what's going on the DB. @todo: Do this better. Don't judge me.
+        $removeNulls = $this->content instanceof User && Config::get('users.driver') === 'eloquent' ? false : true;
+        $this->fields = $this->processFields($this->content->fieldset(), $this->fields, $removeNulls);
 
         // Update the submission with the modified data
         $submission = array_merge($this->request->all(), ['fields' => $this->fields]);
@@ -129,13 +136,7 @@ abstract class Publisher
             return;
         }
 
-        $parent = Page::whereUri($this->request->input('extra.parent_url'));
-
-        $fieldset = $this->request->input('fieldset');
-
-        if ($fieldset !== $parent->fieldset()->name()) {
-            $this->fields['fieldset'] = $fieldset;
-        }
+        $this->fields['fieldset'] = $this->request->input('fieldset');
     }
 
     /**
@@ -193,26 +194,6 @@ abstract class Publisher
     }
 
     /**
-     * Run field data through fieldtypes processors
-     */
-    protected function processFields()
-    {
-        foreach ($this->content->fieldset()->fieldtypes() as $field) {
-            if (! in_array($field->getName(), array_keys($this->fields))) {
-                continue;
-            }
-
-            $this->fields[$field->getName()] = $field->process($this->fields[$field->getName()]);
-        }
-
-        // Get rid of null fields
-        $this->fields = array_filter($this->fields, function ($item) {
-            return $item !== null;
-        });
-
-    }
-
-    /**
      * Perform validation with provided rules
      *
      * @param  array $rules
@@ -221,7 +202,12 @@ abstract class Publisher
      */
     protected function validate($rules, $messages = [], $attributes = [])
     {
-        $validator = app('validator')->make($this->request->all(), $rules, $messages, $attributes);
+        $validator = app('validator')->make(
+            $this->request->validationData($rules),
+            $this->request->rules($rules),
+            $messages,
+            $attributes
+        );
 
         if ($validator->fails()) {
             $e = new PublishException;
@@ -268,10 +254,24 @@ abstract class Publisher
     {
         $this->fields['id'] = $this->id;
 
-        $this->content->dataForLocale($this->locale, $this->getIsolatedLocalizedData());
+        $data = $this->getIsolatedLocalizedData();
+
+        // Separate the taxonomy data from the rest of the data.
+        list($data, $taxonomyData) = $this->taxonomize($data);
+
+        $this->content->dataForLocale($this->locale, $data);
+
+        // Add back the taxonomy data to the default locale only.
+        foreach ($taxonomyData as $handle => $tags) {
+            $this->content->in(default_locale())->set($handle, $tags);
+        }
 
         if ($this->slug) {
             $this->content->slug($this->slug);
+        }
+
+        if ($this->content instanceof User) {
+            $this->content->remove('fieldset');
         }
     }
 
@@ -303,7 +303,37 @@ abstract class Publisher
             }
         }
 
+        // The published boolean will not be in the submitted fields.
+        // It will already have been applied to the content object.
+        if ($this->content->in(default_locale())->published() !== $this->content->published()) {
+            $data['published'] = $this->content->published();
+        } else {
+            $data['published'] = null;
+        }
+
         return $data;
+    }
+
+    /**
+     * Apply any taxonomy terms to the content in the default locale, and remove them from the localized data.
+     *
+     * @param  array $data  Array of isolated localized data
+     * @return array        The same data with taxonomy fields removed, and taxonomy-only data.
+     */
+    protected function taxonomize($data)
+    {
+        $taxonomyData = [];
+
+        foreach (Taxonomy::all() as $taxonomy) {
+            $handle = $taxonomy->path();
+
+            if (array_has($data, $handle)) {
+                $taxonomyData[$handle] = $data[$handle];
+                unset($data[$handle]);
+            }
+        }
+
+        return [$data, $taxonomyData];
     }
 
     /**

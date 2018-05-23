@@ -4,6 +4,7 @@ collections:
   collection-assets: '/collection-assets/{slug}'
   media: '/media/{slug}'
   news_events: '/news-events/{slug}'
+  resources: '/resources/{slug}'
 taxonomies:
   tags: '/blog/tags/{slug}'
   categories: '/articles/categories/{slug}'

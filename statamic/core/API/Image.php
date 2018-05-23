@@ -48,7 +48,7 @@ class Image
     public static function getCpImageManipulationPresets()
     {
         return [
-            'cp_thumbnail_small' => ['w' => '200', 'h' => '200'],
+            'cp_thumbnail_small' => ['w' => '300', 'fit' => 'crop'],
             'cp_thumbnail_large' => ['w' => '1000', 'h' => '1000']
         ];
     }

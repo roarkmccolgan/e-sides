@@ -9,7 +9,7 @@
             <span class="icon icon-circular-graph animation-spin"></span> {{ translate('cp.loading') }}
         </div>
 
-        <div class="drag-notification" v-show="draggingFile">
+        <div class="drag-notification" v-show="canEdit && draggingFile">
             <i class="icon icon-download"></i>
             <h3>{{ translate('cp.drop_to_upload') }}</h3>
         </div>
@@ -17,7 +17,7 @@
         <div v-if="showSidebar" class="asset-browser-sidebar">
             <h4>Containers</h4>
             <div v-for="c in containers" class="sidebar-item" :class="{ 'active': container.id == c.id }">
-                <a @click.prevent="selectContainer(c.id)">
+                <a @click="selectContainer(c.id)">
                     {{ c.title }}
                 </a>
             </div>
@@ -26,12 +26,17 @@
         <div class="asset-browser-main" v-if="initialized">
 
             <div class="asset-browser-header">
-                <h1>
-                    <template v-if="restrictNavigation">
-                        {{ folder.title || folder.path }}
+                <h1 class="mb-24">
+                    <template v-if="isSearching">
+                        {{ translate('cp.search_results') }}
                     </template>
                     <template v-else>
-                        {{ container.title }}
+                        <template v-if="restrictNavigation">
+                            {{ folder.title || folder.path }}
+                        </template>
+                        <template v-else>
+                            {{ container.title }}
+                        </template>
                     </template>
 
                     <div class="loading-indicator" v-show="loadingAssets">
@@ -39,45 +44,44 @@
                     </div>
                 </h1>
 
-                <div class="asset-browser-actions">
-                    <slot name="contextual-actions"></slot>
+                <input type="text"
+                    class="search filter-control mb-24"
+                    placeholder="{{ translate('cp.search') }}..."
+                    v-model="searchTerm"
+                    debounce="500" />
 
-                    <div class="btn-group action">
+                <div class="asset-browser-actions flexy wrap">
 
+                    <slot name="contextual-actions" v-if="selectedAssets.length"></slot>
+
+                    <div class="btn-group action mb-24">
                         <button type="button"
                                 class="btn btn-icon"
                                 :class="{'depressed': displayMode == 'grid'}"
                                 @click="setDisplayMode('grid')">
                             <span class="icon icon-grid"></span>
                         </button>
-
                         <button type="button"
                                 class="btn btn-icon"
                                 :class="{'depressed': displayMode == 'table'}"
                                 @click="setDisplayMode('table')">
                             <span class="icon icon-list"></span>
                         </button>
-
                     </div>
 
-                    <button type="button"
-                            class="btn action"
-                            v-if="!restrictNavigation"
-                            @click.prevent="createFolder">
-                        {{ translate('cp.new_folder') }}
-                    </button>
-
-                    <button type="button" class="btn btn-primary action" @click.prevent="uploadFile">
-                        {{ translate('cp.upload') }}
-                    </button>
+                    <div class="btn-group action mb-24" v-if="canEdit">
+                        <button type="button"
+                                class="btn"
+                                v-if="!restrictNavigation && !isSearching"
+                                @click.prevent="createFolder">
+                            {{ translate('cp.new_folder') }}
+                        </button>
+                        <button type="button" class="btn" @click.prevent="uploadFile" v-if="!isSearching">
+                            {{ translate('cp.upload') }}
+                        </button>
+                    </div>
                 </div>
             </div>
-
-            <breadcrumbs
-                v-if="!restrictNavigation"
-                :path="path"
-                @navigated="folderSelected">
-            </breadcrumbs>
 
             <div class="asset-browser-content">
 
@@ -103,6 +107,7 @@
                     :subfolders="subfolders"
                     :loading="loading"
                     :selected-assets="selectedAssets"
+                    :restrict-navigation="restrictNavigation"
                     @folder-selected="folderSelected"
                     @folder-editing="editFolder"
                     @folder-deleted="folderDeleted"
@@ -110,13 +115,20 @@
                     @asset-deselected="assetDeselected"
                     @asset-editing="editAsset"
                     @asset-deleting="deleteAsset"
-                    @assets-dragged-to-folder="assetsDraggedToFolder">
+                    @assets-dragged-to-folder="assetsDraggedToFolder"
+                    @asset-doubleclicked="assetDoubleclicked">
                 </component>
 
                 <div class="no-results" v-if="isEmpty">
-                    <span class="icon icon-folder"></span>
-                    <h2>{{ translate('cp.asset_folder_empty_heading') }}</h2>
-                    <h3>{{ translate('cp.asset_folder_empty') }}</h3>
+                    <template v-if="isSearching">
+                        <span class="icon icon-magnifying-glass"></span>
+                        <h2>{{ translate('cp.no_search_results') }}</h2>
+                    </template>
+                    <template v-else>
+                        <span class="icon icon-folder"></span>
+                        <h2>{{ translate('cp.asset_folder_empty_heading') }}</h2>
+                        <h3>{{ translate('cp.asset_folder_empty') }}</h3>
+                    </template>
                 </div>
 
                 <pagination
@@ -126,6 +138,12 @@
                     :segments="pagination.segments"
                     @selected="paginationPageSelected">
                 </pagination>
+
+                <breadcrumbs
+                    v-if="!restrictNavigation && !isSearching"
+                    :path="path"
+                    @navigated="folderSelected">
+                </breadcrumbs>
 
             </div>
 
@@ -212,6 +230,7 @@ module.exports = {
             showFolderCreator: false,
             editedFolderPath: null,
             editorHasChild: false,
+            isSearching: false
         }
     },
 
@@ -241,8 +260,14 @@ module.exports = {
             return !this.hasAssets && !this.hasSubfolders;
         },
 
+        canEdit: function() {
+            return this.can('assets:'+ this.container.id +':edit')
+        },
+
         showSidebar() {
             if (! this.initialized) return false;
+
+            if (this.isSearching) return false;
 
             if (this.restrictNavigation) return false;
 
@@ -358,6 +383,14 @@ module.exports = {
          */
         selectedAssets(selections) {
             this.$emit('selections-updated', selections);
+        },
+
+        searchTerm(term) {
+            if (term) {
+                this.search();
+            } else {
+                this.loadAssets();
+            }
         }
 
     },
@@ -402,6 +435,24 @@ module.exports = {
                 this.selectedPage = response.pagination.currentPage;
                 this.loadingAssets = false;
                 this.initializedAssets = true;
+                this.isSearching = false;
+            });
+        },
+
+        search() {
+            this.loadingAssets = true;
+
+            this.$http.post(cp_url('assets/search'), {
+                term: this.searchTerm,
+                container: this.container.id,
+                folder: this.folder.path,
+                restrictNavigation: this.restrictNavigation
+            }).success((response) => {
+                this.isSearching = true;
+                this.assets = response.assets;
+                this.folders = [];
+                this.loadingAssets = false;
+                this.initializedAssets = true;
             });
         },
 
@@ -434,6 +485,12 @@ module.exports = {
          * When an asset has been selected.
          */
         assetSelected(id) {
+            // For single asset selections, clicking a different asset will replace the selection.
+            if (this.maxFiles === 1 && this.maxFilesReached) {
+                this.selectedAssets = [id];
+            }
+
+            // Completely prevent additional selections when the limit has been hit.
             if (this.maxFilesReached) {
                 return;
             }
@@ -462,7 +519,9 @@ module.exports = {
          * When an asset has been chosen for editing.
          */
         editAsset(id) {
-            this.editedAssetId = id;
+            if (this.canEdit) {
+                this.editedAssetId = id;
+            }
         },
 
         /**
@@ -517,6 +576,18 @@ module.exports = {
         assetMoved(folder) {
             this.closeAssetEditor();
             this.folderSelected(folder);
+        },
+
+        /**
+         * When an asset was double clicked.
+         *
+         * This event would only ever be called when the browser is used in the context of a
+         * fieldtype. When used in the "Assets" section, the double click would be handled
+         * from within the asset component and caused the edit dialog to be opened.
+         */
+        assetDoubleclicked(id) {
+            this.assetSelected(id);
+            this.$emit('asset-doubleclicked');
         },
 
         /**

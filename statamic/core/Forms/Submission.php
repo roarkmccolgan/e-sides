@@ -24,7 +24,7 @@ class Submission implements SubmissionContract
     /**
      * @var Form
      */
-    private $form;
+    public $form;
 
     /**
      * @var array
@@ -226,6 +226,16 @@ class Submission implements SubmissionContract
             $e->setErrors($validator->errors()->toArray());
             throw $e;
         }
+    }
+
+    /**
+     * Whether the submissin has the given key.
+     *
+     * @return bool
+     */
+    public function has($field)
+    {
+        return array_has($this->data(), $field);
     }
 
     /**

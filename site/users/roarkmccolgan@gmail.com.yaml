@@ -1,10 +1,12 @@
 ---
-id: fb6b887c-c529-4deb-94f0-b82fbe3341a8
-super: true
+roles:
+  - deb09ecf-b80d-4359-be42-530b837eee78
 name: Roark McColgan
 organization_sector: IDC
 job_title: Developer
 country: South Africa
+id: fb6b887c-c529-4deb-94f0-b82fbe3341a8
+super: true
 password_hash: $2y$10$Hi4UFuuW2gJr2SzYGVralOK9qxNEw2rYCn697SjX.fZpelgP6z7Ru
 ---
 I'm The Dev

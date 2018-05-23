@@ -12,6 +12,8 @@ use Statamic\Contracts\Data\Entries\Entry as EntryObject;
 
 class SneakPeek
 {
+    use ProcessesFields;
+
     /**
      * @var Request
      */
@@ -63,18 +65,20 @@ class SneakPeek
     {
         $this->content = $content;
 
-        $fields = array_get($this->request->all(), 'fields', []);
+        $fields = $this->request->input('fields', []);
 
-        $fields = $this->processFields($fields);
+        $fieldset = (! $this->new)
+            ? $this->content->fieldset()
+            : Fieldset::get($this->request->input('fieldset'));
 
-        $data = $this->request->all();
+        $fields = $this->processFields($fieldset, $fields);
 
         // For entries...
         if ($this->content instanceof EntryObject) {
             // For date-based entries...
             // Modify the date/order.
             if ($this->content->orderType() === 'date') {
-                $date = array_get($data, 'extra.datetime');
+                $date = $this->request->input('extra.datetime');
                 if (strlen($date) > 10) {
                     $date = str_replace(':', '', $date);
                     $date = str_replace(' ', '-', $date);
@@ -83,11 +87,7 @@ class SneakPeek
             }
         }
 
-        unset($data['fields'], $data['extra']);
-
-        $data = array_merge($data, $fields);
-
-        return array_merge($this->content->data(), $data);
+        return array_merge($this->content->data(), $fields);
     }
 
     /**
@@ -141,33 +141,5 @@ class SneakPeek
     private function createPage()
     {
         return Page::create('/'.$this->request->path())->get();
-    }
-
-    /**
-     * Process the submitted fields
-     *
-     * @param  array $fields
-     * @return array
-     */
-    private function processFields($fields)
-    {
-        // Existing pages will have their own fieldset, but new ones will have theirs
-        // passed through with the POST request.
-        $fieldset = (! $this->new)
-            ? $this->content->fieldset()
-            : Fieldset::get($this->request->input('fieldset'));
-
-        foreach ($fieldset->fieldtypes() as $field) {
-            if (! in_array($field->getName(), array_keys($fields))) {
-                continue;
-            }
-
-            $fields[$field->getName()] = $field->process($fields[$field->getName()]);
-        }
-
-        // Get rid of null fields
-        $fields = array_filter($fields);
-
-        return $fields;
     }
 }

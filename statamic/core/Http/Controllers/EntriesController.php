@@ -6,7 +6,6 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Statamic\API\Entry;
 use Statamic\API\Config;
 use Statamic\API\Helper;
-use Statamic\API\Content;
 use Statamic\API\Collection;
 use Statamic\Presenters\PaginationPresenter;
 
@@ -37,7 +36,7 @@ class EntriesController extends CpController
      */
     public function show($collection)
     {
-        $this->access("collections:$collection:edit");
+        $this->access("collections:$collection:view");
 
         if (! Collection::handleExists($collection)) {
             abort(404, "Collection [$collection] does not exist.");
@@ -81,6 +80,14 @@ class EntriesController extends CpController
 
         // Grab the entries from the collection.
         $entries = $collection->entries()->values();
+
+        if ($locale = request('locale')) {
+            $entries = $entries->localize($locale);
+        }
+
+        if (! request('drafts', true)) {
+            $entries = $entries->removeUnpublished();
+        }
 
         // The table Vue component uses a "checked" value for checkboxes. We'll initialize
         // them all to an unchecked state so Vue can have an initial value to work with.
@@ -143,9 +150,18 @@ class EntriesController extends CpController
         $entries = $entries->slice($offset, $perPage);
         $paginator = new LengthAwarePaginator($entries, $totalEntryCount, $perPage, $currentPage);
 
+        $items = $entries->toArray();
+
+        // Adjust the edit urls to add the locales
+        if ($locale !== default_locale()) {
+            foreach ($items as &$item) {
+                $item['edit_url'] = $item['edit_url'] . '?locale=' . $locale;
+            }
+        }
+
         return [
             'columns' => $columns,
-            'items' => $entries->toArray(),
+            'items' => $items,
             'pagination' => [
                 'totalItems' => $totalEntryCount,
                 'itemsPerPage' => $perPage,

@@ -2091,7 +2091,8 @@ mr = (function (mr, $, window, document){
                 prevNextButtons: arrows,
                 autoPlay: timing,
                 draggable: draggable,
-                imagesLoaded: true
+                imagesLoaded: true,
+                pauseAutoPlayOnHover: false
             });
 
             $(sliderInitializer).on( 'scroll.flickity', function( event, progress ) {

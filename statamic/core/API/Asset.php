@@ -48,17 +48,16 @@ class Asset
      */
     private static function whereUrl($url)
     {
-        // Reference the full URL when finding the asset since subdirectory installs would
-        // have the assets saved without the subdirectory. Root installs would have no
-        // change in URL here. For asset IDs (eg. S3) we'll just leave them alone.
-        $fullUrl = (Str::contains($url, '::')) ? $url : URL::prependSiteRoot($url);
-
         // If a container can't be resolved, we'll assume there's no asset.
-        if (! $container = self::resolveContainerFromUrl($fullUrl)) {
+        if (! $container = self::resolveContainerFromUrl($url)) {
             return null;
         }
 
-        $path = trim(Str::removeLeft($fullUrl, URL::makeRelative($container->url())), '/');
+        $containerUrl = ($container->driver() === 'local')
+            ? URL::makeRelative($container->url())
+            : $container->url();
+
+        $path = trim(Str::removeLeft($url, $containerUrl), '/');
 
         return $container->asset($path);
     }
@@ -74,7 +73,10 @@ class Asset
         return AssetContainer::all()->sortBy(function ($container) {
             return strlen($container->url());
         })->first(function ($id, $container) use ($url) {
-            return Str::startsWith($url, URL::makeRelative($container->url()));
+            $containerUrl = ($container->driver() === 'local')
+                ? URL::makeRelative($container->url())
+                : $container->url();
+            return Str::startsWith($url, $containerUrl);
         });
     }
 

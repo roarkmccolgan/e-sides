@@ -2,10 +2,12 @@
 
 namespace Statamic\Addons\Search;
 
+use Statamic\API\Config;
 use Statamic\API\Str;
 use Statamic\API\Search;
 use Statamic\API\Content;
 use Statamic\Addons\Collection\CollectionTags;
+use Statamic\Search\IndexNotFoundException;
 
 class SearchTags extends CollectionTags
 {
@@ -17,18 +19,11 @@ class SearchTags extends CollectionTags
     private $query;
 
     /**
-     * Fields to search within
-     *
-     * @var null|array
-     */
-    private $fields;
-
-    /**
-     * Hash to identify the search collection in the Blink cache
+     * The locale to search within.
      *
      * @var string
      */
-    private $blink_hash;
+    private $locale;
 
     /**
      * The {{ search }} tag. An alias of search:results
@@ -47,26 +42,38 @@ class SearchTags extends CollectionTags
      */
     public function results()
     {
-        $param = $this->get('param', 'q');
-
-        $this->query = request()->query($param);
-
-        $this->fields = $this->getList('fields');
-
-        $this->blink_hash = md5(serialize($this->fields));
-
-        $this->collection = ($this->blink->exists($this->blink_hash))
-            ? $this->blink->get($this->blink_hash)
-            : $this->buildSearchCollection();
-
-        // Convert taxonomy fields to actual taxonomy terms.
-        // This will allow taxonomy term data to be available in the template without additional tags.
-        // If terms are not needed, there's a slight performance benefit in disabling this.
-        if ($this->getBool('supplement_taxonomies', true)) {
-            $this->collection = $this->collection->supplementTaxonomies();
+        if (! $this->query = request()->query($this->get('param', 'q'))) {
+            return $this->parseNoResults();
         }
 
-        $this->filter();
+        $this->locale = $this->get('locale', site_locale());
+
+        try {
+            $this->collection = $this->buildSearchCollection();
+        } catch (IndexNotFoundException $e) {
+            \Log::debug($e->getMessage());
+            return $this->parseNoResults();
+        }
+
+        // By default, each item from the search index will be replaced with the corresponding
+        // data object. This has extra overhead, so if the user only needs to display data
+        // already in the index, then this can be disabled for a speed boost.
+        if ($this->getBool('supplement_data', true)) {
+            $this->convertSearchResultsToContent();
+
+            // Convert taxonomy fields to actual taxonomy terms.
+            // This will allow taxonomy term data to be available in the template without additional tags.
+            // If terms are not needed, there's a slight performance benefit in disabling this.
+            if ($this->getBool('supplement_taxonomies', true)) {
+                $this->collection = $this->collection->supplementTaxonomies();
+            }
+
+            $this->collection = $this->collection->localize($this->locale);
+
+            $this->filter(false);
+        }
+
+        $this->limit();
 
         if ($this->collection->isEmpty()) {
             return $this->parseNoResults();
@@ -83,26 +90,34 @@ class SearchTags extends CollectionTags
     /**
      * Perform a search and generate a collection
      *
-     * @return \Statamic\Data\Content\ContentCollection
+     * @return \Illuminate\Support\Collection
      */
     private function buildSearchCollection()
     {
-        $results = Search::get($this->query, $this->fields);
+        $index = ($collection = $this->get('collection'))
+            ? 'collections/' . $collection
+            : Config::get('search.default_index');
 
-        $collection = collect_content();
+        // The index name should have the locale appended. eg. index_fr
+        // The default locale will *not* have the locale appended.
+        $localizedIndex = $this->locale === default_locale() ? $index : "{$index}_{$this->locale}";
 
-        foreach ($results as $key => $result) {
-            // Only add to the results if the item exists. This happens when content
-            // gets deleted but the search index hasn't yet been re-indexed.
-            if ($content = Content::find($result['id'])) {
-                $content->set('search_score', $result['_score']);
-                $collection->push($content);
+        // If a localized version doesn't exist, we'll just use the regular index name.
+        $index = Search::indexExists($localizedIndex) ? $localizedIndex : $index;
+
+        return Search::in($index)->search($this->query, $this->getList('fields'));
+    }
+
+    private function convertSearchResultsToContent()
+    {
+        $collection = $this->collection->map(function ($result) {
+            if (! $content = Content::find($result['id'])) {
+                return null;
             }
-        }
 
+            return $content;
+        })->filter();
 
-        $this->blink->put($this->blink_hash, $collection);
-
-        return $collection;
+        $this->collection = collect_content($collection);
     }
 }

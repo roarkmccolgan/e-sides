@@ -4,6 +4,21 @@
 			<div class="col-xs-12">
 				<h1 class="h2">{{ title }}</h1>
 			</div>
+			<div class="col-xs-8">
+				<p>
+					{{ content }}
+				</p>
+			</div>
+			<div class="col-xs-4 text-right">
+				<div class="cta mb--1">
+                    <span class="type--fine-print">Download the document</span class="type--fine-print"><br/>
+                    <a class="btn btn--primary type--uppercase" href="{{ file }}" target="_blank">
+                        <span class="btn__text">
+                        	Download {{ title | safe_truncate:10 }}
+                        </span>
+                    </a>
+                </div>
+			</div>
 			<div class="col-xs-12">
 				<div id="pdfembed" style="height: 100%">
 					
@@ -18,9 +33,12 @@
 
 {{ section:page_scripts }}
 <script>
+	var options = {
+	   fallbackLink: false
+	};
 	$(function() {
 	  $('#pdfembed').height($(document).height());
 	});
-	PDFObject.embed("{{ file }}","#pdfembed");
+	PDFObject.embed("{{ file }}","#pdfembed", options);
 </script>
 {{ /section:page_scripts }}

@@ -10,8 +10,7 @@
 
                     <th v-for="column in columns"
                         @click="sortBy(column)"
-                        class="column-sortable"
-                        :class="['column-' + column.label, {'active': isColumnActive(column)} ]"
+                        :class="['column-' + column.label, {'active': isColumnActive(column), 'column-sortable': !isSearching} ]"
                     >
                         <template v-if="column.translation">{{ column.translation }}</template>
                         <template v-else>{{ translate('cp.'+column.label) }}</template>
@@ -42,7 +41,7 @@
 
                     <!-- actions -->
                     <td class="column-actions" v-if="hasActions">
-                        <div class="btn-group">
+                        <div class="btn-group action-more">
                             <button type="button" class="btn-more dropdown-toggle"
                                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="icon icon-dots-three-vertical"></i>
@@ -66,7 +65,7 @@
         </div>
 
         <pagination
-            v-if="pagination.totalPages > 1"
+            v-if="!isSearching && pagination.totalPages > 1"
             :total="pagination.totalPages"
             :current="pagination.currentPage"
             :segments="pagination.segments"
@@ -79,7 +78,7 @@
 <script>
 module.exports = {
 
-    props: ['options', 'keyword', 'items'],
+    props: ['options', 'items', 'isSearching'],
 
     data: function () {
         return {
@@ -199,6 +198,8 @@ module.exports = {
         },
 
         sortBy: function (col) {
+            if (this.isSearching) return;
+
             let sort = col.field;
             let sortOrder = 'desc';
 
@@ -283,6 +284,8 @@ module.exports = {
         },
 
         isColumnActive(col) {
+            if (this.isSearching) return false;
+
             return col.field === this.$parent.sort;
         }
     },

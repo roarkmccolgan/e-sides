@@ -1,0 +1,49 @@
+taxonomies:
+  phase: true
+  resource-type: true
+title: Resources
+create_title: Upload new asset
+fields:
+  title:
+    type: title
+    display: Title
+    localizable: true
+  content:
+    type: redactor
+    display: Description
+    settings: Standard
+  icon_type:
+    type: select
+    display: Icon Type
+    instructions: This will define what icon appears in the media listing page.
+    options:
+      icon-File-TextImage: PDF
+      icon-Video-3: Video
+      icon-File-Word: Word
+      icon-File-Excel: Excel
+      icon-File-Pie: PPT
+      icon-Address-Book2: Glossary
+      icon-Bulleted-List: Poll
+    default: icon-File
+  file:
+    type: assets
+    display: File
+    container: main
+    folder: media
+    restrict: true
+    max_files: 1
+  youtube_url:
+    type: text
+    display: Youtube URL
+    instructions: Only complete if you are not uploading file here
+  image:
+    type: assets
+    display: Video Background Image
+    instructions: 'Minimun Size: 640X480'
+    container: main
+    folder: /
+    restrict: true
+    max_files: 1
+  poll_script:
+    type: textarea
+    display: Poll Script from Survey Monkey

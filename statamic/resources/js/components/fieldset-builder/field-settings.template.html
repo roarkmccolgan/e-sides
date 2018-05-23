@@ -51,6 +51,11 @@
 	<input type="text" class="form-control" v-model="field.default" />
 </div>
 
+<div class="form-group" v-if="root">
+    <label>{{ translate('cp.display_conditions') }}</label>
+    <small class="help-block">{{ translate('cp.display_conditions_instructions') }}</small>
+	<field-conditions-builder :data.sync="field.conditions"></field-conditions-builder>
+</div>
 
 <div v-for="configField in fieldtypeConfig"
      :class="configField.type + '-fieldtype form-group'">

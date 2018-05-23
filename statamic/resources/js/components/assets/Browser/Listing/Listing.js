@@ -6,7 +6,8 @@ export default {
         'folder',
         'subfolders',
         'loading',
-        'selectedAssets'
+        'selectedAssets',
+        'restrictNavigation'
     ],
 
 
@@ -40,7 +41,9 @@ export default {
          * Select (check) an asset.
          */
         selectAsset(id) {
-            this.$emit('asset-selected', id);
+            if (this.can('assets:'+ this.container +':edit')) {
+                this.$emit('asset-selected', id);
+            }
         },
 
         /**
@@ -63,6 +66,10 @@ export default {
         deleteAsset(id) {
             this.$emit('asset-deselected', id);
             this.$emit('asset-deleting', id);
+        },
+
+        assetDoubleclicked(id) {
+            this.$emit('asset-doubleclicked');
         },
 
         /**

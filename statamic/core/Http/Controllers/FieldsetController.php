@@ -2,6 +2,7 @@
 
 namespace Statamic\Http\Controllers;
 
+use Statamic\API\Addon;
 use Statamic\API\Config;
 use Statamic\API\Fieldset;
 use Statamic\API\Folder;
@@ -30,22 +31,22 @@ class FieldsetController extends CpController
 
     public function get()
     {
-        $fieldsets = [];
-
-        foreach (Fieldset::all() as $fieldset) {
+        $fieldsets = collect(Fieldset::all())->sortBy(function ($fieldset) {
+            return $fieldset->title();
+        })->map(function ($fieldset) {
             // If we've decided to omit hidden fieldsets, and this one should be
             // hidden, we'll just move right along.
             if (bool($this->request->query('hidden', true)) === false && $fieldset->hidden()) {
-                continue;
+                return null;
             }
 
-            $fieldsets[] = [
+            return [
                 'title'    => $fieldset->title(),
                 'id'       => $fieldset->name(), // vue uses this as an id
                 'uuid'     => $fieldset->name(), // keeping this here temporarily, just in case.
                 'edit_url' => $fieldset->editUrl()
             ];
-        }
+        })->filter()->values()->all();
 
         return ['columns' => ['title'], 'items' => $fieldsets];
     }
@@ -82,23 +83,7 @@ class FieldsetController extends CpController
 
     public function getFieldset($fieldset)
     {
-        $type = 'default';
-
-        if (substr_count($fieldset, '.') === 2) {
-            // addon fieldsets
-            list($type, $addon, $name) = explode('.', $fieldset);
-            $fieldset = $addon.'.'.$name;
-        } elseif (substr_count($fieldset, '.') === 1) {
-            // settings fieldsets
-            list($type, $fieldset) = explode('.', $fieldset);
-        }
-
-        // Create a temporary fieldset for when creating.
-        if ($fieldset === 'create' && $this->request->creating) {
-            $fieldset = Fieldset::create('temporary');
-        } else {
-            $fieldset = Fieldset::get($fieldset, $type);
-        }
+        $fieldset = $this->getInitialFieldset($fieldset);
 
         $fieldset->locale($this->request->input('locale', default_locale()));
 
@@ -124,7 +109,92 @@ class FieldsetController extends CpController
             );
         }
 
+        if ($this->request->editing) {
+            $array['fields'] = collect($array['fields'])->map(function ($field) {
+                return $this->addConditions($field);
+            });
+        }
+
         return $array;
+    }
+
+    private function addConditions($field)
+    {
+        if (!isset($field['show_when']) && !isset($field['hide_when'])) {
+            return $field;
+        }
+
+        $type = isset($field['show_when']) ? 'show' : 'hide';
+        $conditions = $type === 'show' ? $field['show_when'] : $field['hide_when'];
+        $style = is_string($conditions) ? 'custom' : 'standard';
+
+        $field['conditions'] = [
+            'type' => $type,
+            'style' => $style,
+            'custom' => $style === 'custom' ? $conditions : null,
+            'conditions' => [],
+        ];
+
+        if (is_array($conditions)) {
+            $field['conditions']['conditions'] = collect($conditions)->map(function ($values, $handle) {
+                if (Str::startsWith($handle, 'or_')) {
+                    $operator = 'or';
+                    $handle = Str::removeLeft($handle, 'or_');
+                }
+
+                return [
+                    'handle' => $handle,
+                    'operator' => isset($operator) ? $operator : 'and',
+                    'values' => Helper::ensureArray($values)
+                ];
+            })->values()->all();
+        }
+
+        return $field;
+    }
+
+    /**
+     * @param string $fieldset  Name of the fieldset, as specified in the URL.
+     * @return \Statamic\Contracts\CP\Fieldset
+     */
+    private function getInitialFieldset($fieldset)
+    {
+        // When using the builder to create a new fieldset, we need an object to work
+        // with, but obviously one doesn't exist. So, we'll just use a temporary one.
+        if ($fieldset === 'create' || $this->request->creating === 'true') {
+            return Fieldset::create('temporary');
+        }
+
+        // Addon fieldsets will be specified using "addon.addonname.fieldsetname"
+        if (substr_count($fieldset, '.') === 2) {
+            return $this->getAddonFieldset($fieldset);
+        }
+
+        // Settings fieldsets will be specified using "settings.area"
+        if (substr_count($fieldset, '.') === 1) {
+            return $this->getSettingsFieldset($fieldset);
+        }
+
+        // Otherwise, just get a regular fieldset.
+        return Fieldset::get($fieldset);
+    }
+
+    private function getAddonFieldset($fieldset)
+    {
+        list(, $addonName, $fieldsetName) = explode('.', $fieldset);
+
+        if ($fieldsetName !== 'settings') {
+            throw new \Exception('Cannot get non-settings fieldset.');
+        }
+
+        return Addon::create($addonName)->settingsFieldset();
+    }
+
+    private function getSettingsFieldset($fieldset)
+    {
+        list(, $fieldset) = explode('.', $fieldset);
+
+        return Fieldset::get($fieldset, 'settings');
     }
 
     /**
@@ -183,69 +253,6 @@ class FieldsetController extends CpController
         return $taxonomies->values()->all();
     }
 
-    public function fieldtypes()
-    {
-        $fieldtypes = [];
-
-        foreach ($this->getAllFieldtypes() as $fieldtype) {
-            $config = [];
-
-            foreach ($fieldtype->getConfigFieldset()->fieldtypes() as $item) {
-                $c = $item->getFieldConfig();
-
-                // Go through each fieldtype in *its* config fieldset and process the values. SO META.
-                foreach ($item->getConfigFieldset()->fieldtypes() as $field) {
-                    if (! in_array($field->getName(), array_keys($c))) {
-                        continue;
-                    }
-
-                    $c[$field->getName()] = $field->preProcess($c[$field->getName()]);
-                }
-
-                $c['display'] = trans("fieldtypes/{$fieldtype->snakeName()}.{$c['name']}");
-                $c['instructions'] = markdown(trans("fieldtypes/{$fieldtype->snakeName()}.{$c['name']}_instruct"));
-
-                $config[] = $c;
-            }
-
-            $fieldtypes[] = [
-                'label' => $fieldtype->getAddonName(),
-                'name' => $fieldtype->snakeName(),
-                'canBeValidated' => $fieldtype->canBeValidated(),
-                'canBeLocalized' => $fieldtype->canBeLocalized(),
-                'canHaveDefault' => $fieldtype->canHaveDefault(),
-                'config' => $config,
-            ];
-        }
-
-        $hidden = ['replicator_sets', 'fields', 'asset_container', 'asset_folder', 'user_password',
-                   'locale_settings', 'theme', 'redactor_settings', 'relate'];
-        foreach ($fieldtypes as $key => $fieldtype) {
-            if (in_array($fieldtype['name'], $hidden)) {
-                unset($fieldtypes[$key]);
-            }
-        }
-
-        return array_values($fieldtypes);
-    }
-
-    /**
-     * @return \Illuminate\Support\Collection
-     */
-    private function getAllFieldtypes()
-    {
-        return collect([bundles_path(), addons_path()])->flatMap(function ($path) {
-            return Folder::getFilesRecursively($path);
-        })->filter(function ($path) {
-            return Pattern::endsWith($path, 'Fieldtype.php');
-        })->map(function ($path) {
-            $name = str_replace('Fieldtype', '', basename($path, '.php'));
-            return resource_loader()->loadFieldtype($name);
-        })->sortBy(function ($fieldtype) {
-            return $fieldtype->getAddonName();
-        });
-    }
-
     public function update($name)
     {
         $contents = $this->request->input('fieldset');
@@ -289,6 +296,78 @@ class FieldsetController extends CpController
         return $fields;
     }
 
+    /**
+     * Process conditions submitted through the Vue component.
+     *
+     * @param  array $contents  Fieldset contents.
+     * @return array            The fieldset contents with condition syntax appropriately updated.
+     */
+    private function processConditions($contents)
+    {
+        $contents['fields'] = collect($contents['fields'])->map(function ($field) {
+            return $this->processFieldConditions($field);
+        })->all();
+
+        return $contents;
+    }
+
+    /**
+     * Process a single field's conditions.
+     *
+     * @param  array $config  The field's config.
+     * @return array          The field's config, with condition syntax appropriately updated.
+     */
+    private function processFieldConditions($config)
+    {
+        unset($config['show_when'], $config['hide_when']);
+
+        if (! $conditions = array_pull($config, 'conditions')) {
+            return $config;
+        }
+
+        if (! $type = array_get($conditions, 'type')) {
+            return $config;
+        }
+
+        $values = ($conditions['style'] === 'custom')
+            ? $conditions['custom']
+            : $this->processStandardFieldConditions($conditions['conditions']);
+
+        $config[$type . '_when'] = $values;
+
+        return $config;
+    }
+
+    private function processStandardFieldConditions($conditions)
+    {
+        return collect($conditions)->map(function ($condition) {
+            $handle = $condition['handle'];
+
+            if ($condition['operator'] === 'or') {
+                $handle = 'or_' . $handle;
+            }
+
+            $values = $this->normalizeConditionValues($condition['values']);
+            $values = (count($values) === 1) ? $values[0] : $values;
+
+            return compact('handle', 'values');
+        })->pluck('values', 'handle')->all();
+    }
+
+    private function normalizeConditionValues($values)
+    {
+        return collect($values)->map(function ($value) {
+            switch ($value) {
+                case 'true':
+                    return true;
+                case 'false':
+                    return false;
+                default:
+                    return $value;
+            }
+        })->all();
+    }
+
     public function updateLayout($fieldset)
     {
         $layout = collect($this->request->input('fields'))->keyBy('name')->toArray();
@@ -299,7 +378,7 @@ class FieldsetController extends CpController
 
         $fields = array_get($contents, 'fields', []);
 
-        $title_field = $fields['title'];
+        $title_field = array_get($fields, 'title');
 
         $updated_fields = [];
 
@@ -314,7 +393,9 @@ class FieldsetController extends CpController
         }
 
         // Put back the title field at the front.
-        $updated_fields = array_merge(['title' => $title_field], $updated_fields);
+        if ($title_field) {
+            $updated_fields = array_merge(['title' => $title_field], $updated_fields);
+        }
 
         $contents['fields'] = $updated_fields;
 
@@ -373,6 +454,8 @@ class FieldsetController extends CpController
 
     private function prepareFieldset($slug, $contents)
     {
+        $contents = $this->processConditions($contents);
+
         // We need to key the array by name
         $fields = [];
         foreach ($contents['fields'] as $field) {

@@ -2,27 +2,23 @@
 
 namespace Statamic\Search;
 
-use Statamic\API\Config;
-use Statamic\API\Content;
-use Statamic\Events\SearchQueryPerformed;
-use Mmanos\Search\Search as SearchPackage;
-use Statamic\Contracts\Search\Search as SearchContract;
-
-class Search implements SearchContract
+class Search
 {
-    /**
-     * Search package
-     *
-     * @var SearchPackage
-     */
-    private $package;
+    private $defaultDriver;
+    private $defaultIndexName;
+    private $indexes;
 
     /**
      * Create a new Search instance
+     *
+     * @param array $config
+     * @param \Illuminate\Support\Collection $indexes
      */
-    public function __construct()
+    public function __construct(array $config, $indexes = null)
     {
-        $this->package = new SearchPackage(Config::get('search.driver'));
+        $this->defaultDriver = $config['default_driver'];
+        $this->defaultIndexName = $config['default_index'];
+        $this->indexes = $indexes;
     }
 
     /**
@@ -34,41 +30,39 @@ class Search implements SearchContract
      */
     public function search($query, $fields = null)
     {
-        event(new SearchQueryPerformed($query));
-
-        return $this->index()->search($fields, $query);
+        return $this->index()->search($query, $fields);
     }
 
     /**
      * Get a search index
      *
      * @param  string $index Name of the index
+     * @param  string $locale The locale
      * @return Index
      */
-    public function index($index = null)
+    public function index($index = null, $locale = null)
     {
-        if (! $index) {
-            $index = $this->getDefaultIndex();
+        if (! $index || $index === $this->defaultIndexName) {
+            return Index::make($this->defaultIndexName, $this->defaultDriver, $locale);
         }
 
-        return new Index($this->package->index($index));
+        return Index::make(
+            $index,
+            data_get($this->indexes, $index.'.driver'),
+            $locale
+        );
     }
 
     /**
      * Update a search index
      *
      * @param  string $index Name of the index
+     * @param  string $locale The locale
      * @return void
      */
-    public function update($index = null)
+    public function update($index = null, $locale = null)
     {
-        $index = $this->index($index);
-
-        $index->deleteIndex();
-
-        foreach (Content::all() as $id => $content) {
-            $index->insert($id, $content->toArray());
-        }
+        $this->index($index, $locale)->update();
     }
 
     /**
@@ -81,15 +75,5 @@ class Search implements SearchContract
     public function __call($method, array $arguments)
     {
         return call_user_func_array(array($this->index(), $method), $arguments);
-    }
-
-    /**
-     * Get the name of the default search index
-     *
-     * @return string
-     */
-    protected function getDefaultIndex()
-    {
-        return Config::get('search.default_index');
     }
 }

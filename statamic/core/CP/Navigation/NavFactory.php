@@ -6,15 +6,26 @@ use Statamic\API\AssetContainer;
 use Statamic\API\Collection;
 use Statamic\API\Taxonomy;
 use Statamic\API\User;
+use Statamic\API\Folder;
 use Statamic\API\GlobalSet;
+use Statamic\Outpost as StatamicOutpost;
 
 class NavFactory
 {
+    /**
+     * @var Nav
+     */
     private $nav;
 
-    public function __construct(Nav $nav)
+    /**
+     * @var StatamicOutpost
+     */
+    private $outpost;
+
+    public function __construct(Nav $nav, StatamicOutpost $outpost)
     {
         $this->nav = $nav;
+        $this->outpost = $outpost;
     }
 
     public function build()
@@ -22,51 +33,35 @@ class NavFactory
         $this->nav->add($this->buildContentNav());
         $this->nav->add($this->buildToolsNav());
         $this->nav->add($this->buildConfigureNav());
-
-        $this->trim();
-    }
-
-    /**
-     * Remove any sections that have no children.
-     *
-     * @return void
-     */
-    private function trim()
-    {
-        foreach ($this->nav->children() as $item) {
-            if ($item->children()->isEmpty()) {
-                $this->nav->remove($item);
-            }
-        }
     }
 
     private function buildContentNav()
     {
         $nav = $this->item('content')->title(t('nav_content'));
 
-        if ($this->access('pages:edit')) {
+        if ($this->access('pages:view')) {
             $nav->add($this->item('pages')->route('pages')->title(t('nav_pages')));
         }
 
-        if ($this->access('collections:*:edit')) {
+        if ($this->access('collections:*:view')) {
             if ($sub = $this->buildCollectionsNav()) {
                 $nav->add($sub);
             }
         }
 
-        if ($this->access('taxonomies:*:edit')) {
+        if ($this->access('taxonomies:*:view')) {
             if ($sub = $this->buildTaxonomiesNav()) {
                 $nav->add($sub);
             }
         }
 
-        if ($this->access('assets:*:edit')) {
+        if ($this->access('assets:*:view')) {
             if (! AssetContainer::all()->isEmpty()) {
                 $nav->add($this->item('assets')->route('assets')->title(t('nav_assets')));
             }
         }
 
-        if ($this->access('globals:*:edit')) {
+        if ($this->access('globals:*:view')) {
             $nav->add($this->buildGlobalsNav());
         }
 
@@ -76,7 +71,7 @@ class NavFactory
     private function buildCollectionsNav()
     {
         $collections = collect(Collection::all())->filter(function ($collection) {
-            return $this->access("collections:{$collection->path()}:edit");
+            return $this->access("collections:{$collection->path()}:view");
         });
 
         if ($collections->isEmpty()) {
@@ -105,7 +100,7 @@ class NavFactory
         $nav = $this->item('taxonomies')->route('taxonomies')->title(t('nav_taxonomies'));
 
         $taxonomies = collect(Taxonomy::all())->filter(function ($taxonomy) {
-            return $this->access("taxonomies:{$taxonomy->path()}:edit");
+            return $this->access("taxonomies:{$taxonomy->path()}:view");
         });
 
         if ($taxonomies->isEmpty()) {
@@ -132,7 +127,7 @@ class NavFactory
         $nav = $this->item('globals')->route('globals')->title(t('nav_globals'));
 
         $globals = GlobalSet::all()->filter(function ($set) {
-            return $this->access("globals:{$set->slug()}:edit");
+            return $this->access("globals:{$set->slug()}:view");
         });
 
         if (count($globals) > 1) {
@@ -157,11 +152,28 @@ class NavFactory
         }
 
         if ($this->access('updater')) {
-            $nav->add($this->item('updater')->route('updater')->title(t('nav_updater')));
+            $updates = $this->outpost->getUpdateCount();
+
+            $nav->add(
+                $this->item('updater')
+                     ->route('updater')
+                     ->title(t('nav_updater'))
+                     ->badge($updates)
+            );
         }
 
         if ($this->access('importer')) {
             $nav->add($this->item('import')->route('import')->title(t('nav_import')));
+        }
+
+        $duplicates = app('stache')->duplicates();
+        if (! $duplicates->isEmpty()) {
+            $nav->add(
+                $this->item('resolve_duplicates')
+                     ->route('resolve-duplicate-ids')
+                     ->title(t('nav_resolve_duplicate_ids'))
+                     ->badge($duplicates->count())
+            );
         }
 
         return $nav;
@@ -175,10 +187,10 @@ class NavFactory
             $nav->add($this->item('addons')->route('addons')->title(t('nav_addons')));
             $nav->add($this->buildConfigureContentNav());
             $nav->add($this->item('fieldsets')->route('fieldsets')->title(t('nav_fieldsets')));
-            $nav->add($this->item('settings')->route('settings')->title(t('nav_settings')));
+            $nav->add($this->buildConfigureSettingsNav());
         }
 
-        if ($this->access('users:edit')) {
+        if ($this->access('users:view')) {
             $nav->add($this->buildUsersNav());
         }
 
@@ -193,6 +205,30 @@ class NavFactory
         $nav->add($this->item('collections')->route('collections.manage')->title(t('nav_collections')));
         $nav->add($this->item('taxonomies')->route('taxonomies.manage')->title(t('nav_taxonomies')));
         $nav->add($this->item('globals')->route('globals.manage')->title(t('nav_globals')));
+
+        return $nav;
+    }
+
+    private function buildConfigureSettingsNav()
+    {
+        $nav = $this->item('settings')->route('settings')->title(t('nav_settings'));
+
+        $sections = collect(Folder::getFilesByType(statamic_path('settings/defaults'), 'yaml'))
+            ->map(function ($file) {
+                return pathinfo($file)['filename'];
+            })
+            ->reject(function ($setting) {
+                return $setting == 'services';
+            });
+
+        foreach ($sections as $section) {
+            $nav->add(
+                $this
+                    ->item($section)
+                    ->route('settings.edit', $section)
+                    ->title(t("settings_$section"))
+            );
+        }
 
         return $nav;
     }

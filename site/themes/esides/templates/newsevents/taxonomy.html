@@ -1,0 +1,34 @@
+<section class="bg--dark">
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-12">
+				<h1>News and Events: {{ title }}</h1>
+				<p>{{ content }}</p>
+			</div>
+		</div>
+	</div>
+</section>
+<section class="bg--dark">
+	<div class="container">
+		<div class="row">
+			{{ collection:news_events taxonomy="true" paginate="true" as="posts" limit="10" }}
+
+				{{ if no_results }}
+					<p>No "{{ title }}" posts.</p>
+				{{ /if }}
+
+				{{ posts }}
+					<div class="col-sm-4">
+						{{ partial:block }}
+					</div>
+				{{ /posts }}
+			{{ partial:pagination }}
+			{{ /collection:news_events }}
+		</div>
+	</div>
+</section>
+
+{{ section:page_scripts }}
+<script src="articles.js"></script>
+<script id="dsq-count-scr" src="//e-sides.disqus.com/count.js" async></script>
+{{ /section:page_scripts }}

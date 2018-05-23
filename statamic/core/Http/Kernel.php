@@ -14,7 +14,6 @@ class Kernel extends HttpKernel
     protected $middleware = [
         'Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode',
         'Statamic\StaticCaching\Middleware\Retrieve',
-        'Statamic\Http\Middleware\Glide',
         'Illuminate\Cookie\Middleware\EncryptCookies',
         'Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse',
         'Illuminate\Session\Middleware\StartSession',
@@ -34,7 +33,9 @@ class Kernel extends HttpKernel
         'configurable' => 'Statamic\Http\Middleware\CP\Configurable',
         'installer' => 'Statamic\Http\Middleware\Installer',
         'outpost' => 'Statamic\Http\Middleware\Outpost',
-        'locale' => 'Statamic\Http\Middleware\CP\DefaultLocale',
+        'cp-enabled' => 'Statamic\Http\Middleware\CpEnabled',
+        'enforce-default-cp-locale' => 'Statamic\Http\Middleware\CP\DefaultLocale',
+        'set-cp-locale' => 'Statamic\Http\Middleware\CP\Localize',
         'staticcache' => 'Statamic\StaticCaching\Middleware\Cache',
     ];
 

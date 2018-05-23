@@ -6,7 +6,9 @@
 
 module.exports = {
 
-    props: ['name', 'data', 'config', 'autofocus'],
+    mixins: [Fieldtype, AutoSlug],
+
+    props: ['autofocus'],
 
     data: function() {
     	return {
@@ -19,6 +21,12 @@ module.exports = {
             return 'form-control type-' + this.mode;
         }
     },
+
+    ready() {
+        if (this.config.autoslug) {
+            this.autoSlug(this.config.autoslug);
+        }
+    }
 
 };
 </script>

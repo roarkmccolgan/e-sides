@@ -4,15 +4,20 @@ namespace Statamic\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Statamic\API\Fieldset;
+use Statamic\API\Arr;
 use Statamic\API\Config;
+use Statamic\API\Helper;
 use Statamic\API\Content;
 use Statamic\API\Taxonomy;
 use Statamic\CP\Publish\Publisher;
 use Statamic\Contracts\CP\Fieldset as FieldsetContract;
+use Statamic\Addons\Suggest\TypeMode;
+use Statamic\CP\Publish\ProcessesFields;
 use Statamic\Exceptions\PublishException;
 
 abstract class PublishController extends CpController
 {
+    use ProcessesFields;
     use GetsTaxonomiesFromFieldsets;
 
     /**
@@ -47,6 +52,14 @@ abstract class PublishController extends CpController
     abstract protected function redirect(Request $request, $content);
 
     /**
+     * Whether the user is authorized to publish the object.
+     *
+     * @param Request $request
+     * @return bool
+     */
+    abstract protected function canPublish(Request $request);
+
+    /**
      * Save the content.
      *
      * This can also be implemented to the child components so an event can be
@@ -64,6 +77,10 @@ abstract class PublishController extends CpController
      */
     public function save(Request $request)
     {
+        if (! $this->canPublish($request)) {
+            return response()->json(['success' => false, 'errors' => ['Unauthorized.']]);
+        }
+
         try {
             /**
              * Maybe refactor to take in the fields so we don't have to depend
@@ -95,12 +112,31 @@ abstract class PublishController extends CpController
             ];
         }
 
-        $this->success(translate('cp.thing_saved', ['thing' => ucwords($request->type)]));
+        $successMessage = translate('cp.thing_saved', [
+            'thing' => $this->buildSuccessMessage($request, $content),
+        ]);
+
+        if (! $request->continue || $request->new) {
+            $this->success($successMessage);
+        }
 
         return [
             'success'  => true,
             'redirect' => $this->buildRedirect($request, $content),
+            'message' => $successMessage
         ];
+    }
+
+    /**
+     * Build a success message that can be overriden for better localization.
+     *
+     * @param  Request  $request
+     * @param  Content  $content
+     * @return string
+     */
+    protected function buildSuccessMessage($request, $content)
+    {
+        return t($request->type);
     }
 
     /**
@@ -162,9 +198,14 @@ abstract class PublishController extends CpController
                 $url .= '?locale=' . $locale;
             }
 
+            // Locales should appear to be published by default, if you're targeting the default locale.
+            $is_published = request()->input('locale', Config::getDefaultLocale()) === Config::getDefaultLocale();
+
             $has_content = false;
             if ($uuid) {
-                $has_content = Content::find($uuid)->hasLocale($locale);
+                $content = Content::find($uuid);
+                $has_content = $content->hasLocale($locale);
+                $is_published = $content->in($locale)->published();
             }
 
             $locales[] = [
@@ -172,70 +213,67 @@ abstract class PublishController extends CpController
                 'label'       => Config::getLocaleName($locale),
                 'url'         => $url,
                 'is_active'   => $locale === app('request')->query('locale', Config::getDefaultLocale()),
-                'has_content' => $has_content
+                'has_content' => $has_content,
+                'is_published' => $is_published,
             ];
         }
 
         return $locales;
     }
 
-    /**
-     * Create the data array, populating it with blank values for all fields in
-     * the fieldset, then overriding with the actual data where applicable.
-     *
-     * @param string|\Statamic\Data\Content $arg Either a content object, or the name of a fieldset.
-     * @return array
-     */
-    protected function populateWithBlanks($arg)
+    protected function getSuggestions($fieldset)
     {
-        // Get a fieldset and data
-        if ($arg instanceof \Statamic\Contracts\Data\Content\Content) {
-            $fieldset = $arg->fieldset();
-            $data = $arg->processedData();
-        } else {
-            $fieldset = Fieldset::get($arg);
-            $data = [];
-        }
+        return collect(
+            $this->getSuggestFields($fieldset->fields())
+        )->map(function ($config) {
+            $config = Arr::except($config, ['display', 'instructions', 'max_items']);
 
-        // This will be the "merged" fieldset, built up from any partials.
-        $merged_fieldset = [];
+            $mode = (new TypeMode)->resolve(
+                $config['type'],
+                array_get($config, 'mode', 'options')
+            );
 
-        // Get the fieldtypes
-        $fieldtypes = collect($fieldset->fieldtypes());
+            return [
+                'suggestions' => $mode->setConfig($config)->suggestions(),
+                'key' => json_encode($config)
+            ];
+        })->pluck('suggestions', 'key');
+    }
 
-        // Merge any fields from nested fieldsets (only a single level - @todo: recursion)
-        $partials = collect();
-        $fieldtypes->each(function ($ft) use ($partials, &$merged_fieldset) {
-            if ($ft->getAddonClassName() === 'Partial') {
-                $pfs = Fieldset::get($ft->getFieldConfig('fieldset'));
+    protected function getSuggestFields($fields, $prefix = '')
+    {
+        $suggestFields = [];
 
-                $merged_fieldset = array_merge($pfs->fields(), $merged_fieldset);
+        foreach ($fields as $handle => $config) {
+            $type = array_get($config, 'type', 'text');
 
-                foreach ($pfs->fieldtypes() as $f) {
-                    $partials->push($f);
+            if (isset($config['options'])) {
+                $config['options'] = format_input_options($config['options']);
+            }
+
+            foreach (['collection', 'taxonomy'] as $forceArrayKey) {
+                if (isset($config[$forceArrayKey])) {
+                    $config[$forceArrayKey] = Helper::ensureArray($config[$forceArrayKey]);
                 }
             }
-        });
 
-        // Merge the partials and key everything by field name.
-        $fieldtypes = $fieldtypes->merge($partials)->keyBy(function($ft) {
-            return $ft->getName();
-        });
-        $merged_fieldset = array_merge($fieldset->fields(), $merged_fieldset);
-
-        // Build up the blanks
-        $blanks = [];
-        foreach ($merged_fieldset as $name => $config) {
-            if (! $default = array_get($config, 'default')) {
-                $default = $fieldtypes->get($name)->blank();
+            if ($type === 'grid') {
+                $suggestFields = array_merge($suggestFields, $this->getSuggestFields($config['fields'], $prefix . $handle));
             }
 
-            $blanks[$name] = $default;
-            if ($fieldtype = $fieldtypes->get($name)) {
-                $blanks[$name] = $fieldtype->preProcess($default);
+            if ($type === 'replicator' || $type === 'bard') {
+                foreach (array_get($config, 'sets', []) as $set) {
+                    if (isset($set['fields'])) {
+                        $suggestFields = array_merge($suggestFields, $this->getSuggestFields($set['fields'], $prefix . $handle));
+                    }
+                }
+            }
+
+            if (in_array($type, ['suggest', 'collection', 'taxonomy', 'pages', 'users', 'collections', 'form'])) {
+                $suggestFields[$prefix . $handle] = $config;
             }
         }
 
-        return array_merge($blanks, $data);
+        return $suggestFields;
     }
 }

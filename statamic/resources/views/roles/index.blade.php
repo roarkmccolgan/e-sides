@@ -5,14 +5,12 @@
     <user-role-listing inline-template v-cloak>
 
         <div class="listing user-roles-listing">
-            <div id="publish-controls" class="head sticky">
-                <h1 id="publish-title">{{ translate('cp.nav_user-roles') }}</h1>
-                <div class="controls">
+            <div class="flexy mb-24">
+                <h1 class="fill">{{ translate('cp.nav_user-roles') }}</h1>
+                <div class="controls flexy">
                     @can('users:create')
                         <search v-model="keyword"></search>
-                        <div class="btn-group">
-                            <a href="{{ route('user.role.create') }}" class="btn btn-primary">{{ translate('cp.create_role_button') }}</a>
-                        </div>
+                            <a href="{{ route('user.role.create') }}" class="btn btn-primary ml-8">{{ translate('cp.create_role_button') }}</a>
                     @endcan
                 </div>
             </div>

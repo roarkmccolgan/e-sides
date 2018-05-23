@@ -15,7 +15,7 @@ class Form implements FormContract
     /**
      * @var string
      */
-    private $name;
+    public $name;
 
     /**
      * @var Formset
@@ -255,6 +255,25 @@ class Form implements FormContract
     public function editUrl()
     {
         return $this->formset()->editUrl();
+    }
+
+    /**
+     * Get or set whether form submissions should be saved.
+     *
+     * @param bool $store
+     * @return bool
+     */
+    public function shouldStore($store = null)
+    {
+        if (is_null($store)) {
+            return $this->formset()->get('store', true);
+        }
+
+        if ($store === true) {
+            $this->formset()->remove('store');
+        } else {
+            $this->formset()->set('store', $store);
+        }
     }
 
     /**

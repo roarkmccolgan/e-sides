@@ -5,7 +5,7 @@
 @import "core/animation";
 
 // Vendors
-@import "bootstrap";
+@import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
 @import "sweetalert";
 @import "vendors/codemirror";
 @import "vendors/date-picker";
@@ -13,12 +13,17 @@
 @import "vendors/selectize";
 @import "vendors/trix";
 @import "vendors/luminous";
+@import "vendors/tippy";
+@import "vendors/medium-editor";
+@import "vendors/medium-editor-theme";
 
-@import "core/base";
+@import "core/utilities";
+@import "core/layout";
 @import "core/typography";
 
 // Elements
 @import "elements/buttons";
+@import "elements/badges";
 @import "elements/columns";
 @import "elements/forms";
 @import "elements/graphics";
@@ -32,7 +37,6 @@
 @import "components/cards";
 @import "components/dossier";
 @import "components/nav-main";
-@import "components/content-main";
 @import "components/assets";
 @import "components/date-picker";
 @import "components/grid";
@@ -72,3 +76,5 @@
 @import "components/fieldtypes/partial";
 @import "components/fieldtypes/hidden";
 @import "components/fieldtypes/tags";
+@import "components/fieldtypes/revealer";
+@import "components/fieldtypes/bard";

@@ -2032,6 +2032,11 @@ section.slider .flickity-page-dots {
   opacity: 1;
   pointer-events: initial;
 }
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+  .masonry .masonry__container.masonry--active .masonry__item {
+    pointer-events: auto;
+  }
+}
 .masonry .masonry__container .masonry__item {
   opacity: 0;
   pointer-events: none;

@@ -12,12 +12,29 @@ use Statamic\API\Fieldset;
 use Statamic\API\Str;
 use Statamic\API\Cache;
 use Statamic\API\Stache;
+use Statamic\Extend\Addon;
+use Illuminate\Http\Request;
+use Statamic\CP\Publish\ProcessesFields;
+use Statamic\CP\Publish\ValidationBuilder;
+use Statamic\Extend\Management\AddonRepository;
 
 /**
  * Controller for the addon area
  */
 class AddonsController extends CpController
 {
+    use ProcessesFields;
+
+    /**
+     * @var AddonRepository
+     */
+    private $addonRepo;
+
+    public function __construct(AddonRepository $addonRepo)
+    {
+        $this->addonRepo = $addonRepo;
+    }
+
     public function index()
     {
         return view('addons.index', [
@@ -27,46 +44,33 @@ class AddonsController extends CpController
 
     public function get()
     {
-        $addons = [];
-
-        $has_settings = addon_repo()->addons()->filter('settings.yaml')->getFiles()->map(function ($path) {
-            return explode('/', $path)[2];
-        })->all();
-
-        foreach (addon_repo()->addons()->filter('meta.yaml')->getFiles() as $file) {
-            $meta = YAML::parse(File::get($file));
-
-            $addon = [
-                'id'            => Path::directory($file),
-                'name'          => array_get($meta, 'name'),
-                'addon_url'     => array_get($meta, 'url'),
-                'version'       => array_get($meta, 'version'),
-                'developer'     => array_get($meta, 'developer'),
-                'developer_url' => array_get($meta, 'developer_url'),
-                'description'   => array_get($meta, 'description')
+        $addons = $this->addonRepo->thirdParty()->addons()->map(function ($addon) {
+            return [
+                'id'            => $addon->id(),
+                'name'          => $addon->name(),
+                'addon_url'     => $addon->url(),
+                'version'       => $addon->version(),
+                'developer'     => $addon->developer(),
+                'developer_url' => $addon->developerUrl(),
+                'description'   => $addon->description(),
+                'settings_url'  => $addon->hasSettings() ? $addon->settingsUrl() : null,
+                'installed'     => $addon->isInstalled()
             ];
-
-            $name = Path::folder($file);
-
-            if (in_array($name, $has_settings)) {
-                $addon['settings_url'] = '/' . URL::assemble(CP_ROUTE, 'addons', Str::studlyToSlug($name), 'settings');
-            }
-
-            $addons[] = $addon;
-        }
+        })->values();
 
         return [
-            'columns' => ['name', 'version', 'developer', 'description'],
-            'items' => $addons
+            'columns' => ['name', 'version', 'developer', 'description', 'installed'],
+            'items' => $addons,
+            'pagination' => ['totalPages' => 1]
         ];
     }
 
-    public function delete()
+    public function delete(Request $request)
     {
-        $ids = Helper::ensureArray($this->request->input('ids'));
+        $this->authorize('super');
 
-        foreach ($ids as $folder) {
-            Folder::delete($folder);
+        foreach (Helper::ensureArray($request->ids) as $id) {
+            \Statamic\API\Addon::create($id)->delete();
         }
 
         return ['success' => true];
@@ -81,83 +85,45 @@ class AddonsController extends CpController
 
     public function settings($addon)
     {
-        $addon = Str::studly($addon);
+        $addon = new Addon(Str::studly($addon));
 
-        $path = "site//addons//$addon//settings.yaml";
-
-        // If there's no settings fieldset, we'll error out.
-        if (! File::exists($path)) {
+        if (! $addon->hasSettings()) {
             return redirect()->route('addons')->withErrors(['The requested addon does not have settings.']);
         }
 
-        $data = addon($addon)->getConfig();
-
-        $fieldset = Fieldset::get($addon.'.settings', 'addon');
-
-        $data = $this->preProcessData($data, $fieldset);
-
-        $data = $this->populateWithBlanks($fieldset, $data);
-
         return view('addons.settings', [
-            'title' => $addon . ' ' . trans_choice('cp.settings', 2),
-            'slug'  => $addon,
+            'title' => $addon->name() . ' ' . trans_choice('cp.settings', 2),
+            'slug'  => $addon->slug(),
             'extra' => [
-                'addon' => $addon
+                'addon' => $addon->id()
             ],
-            'content_data' => $data,
+            'content_data' => $this->getAddonData($addon),
             'content_type' => 'addon',
-            'fieldset' => 'addon.'.$addon.'.settings'
+            'fieldset' => 'addon.'.$addon->slug().'.settings'
         ]);
     }
 
-    /**
-     * Create the data array, populating it with blank values for all fields in
-     * the fieldset, then overriding with the actual data where applicable.
-     *
-     * @param string $fieldset
-     * @param array $data
-     * @return array
-     */
-    private function populateWithBlanks($fieldset, $data)
+    private function getAddonData(Addon $addon)
     {
-        // Get the fieldtypes
-        $fieldtypes = collect($fieldset->fieldtypes())->keyBy(function($ft) {
-            return $ft->getName();
-        });
-
-        // Build up the blanks
-        $blanks = [];
-        foreach ($fieldset->fields() as $name => $config) {
-            $blanks[$name] = $fieldtypes->get($name)->blank();
-        }
-
-        return array_merge($blanks, $data);
+        return $this->preProcessWithBlankFields(
+            $addon->settingsFieldset(),
+            $addon->config()
+        );
     }
 
-    private function preProcessData($data, $fieldset)
+    public function saveSettings(Request $request, $addon)
     {
-        $fieldtypes = collect($fieldset->fieldtypes())->keyBy(function($fieldtype) {
-            return $fieldtype->getFieldConfig('name');
-        });
+        $addon = new Addon(Str::studly($addon));
 
-        foreach ($data as $field_name => $field_data) {
-            if ($fieldtype = $fieldtypes->get($field_name)) {
-                $data[$field_name] = $fieldtype->preProcess($field_data);
-            }
+        if ($response = $this->validateSubmission($request, $fieldset = $addon->settingsFieldset())) {
+            return $response;
         }
 
-        return $data;
-    }
-
-    public function saveSettings($addon)
-    {
-        $addon = Str::studly($addon);
-
-        $data = $this->processFields($addon.'.settings');
+        $data = $this->processFields($fieldset, $request->fields);
 
         $contents = YAML::dump($data);
 
-        $file = settings_path('addons/' . Str::snake($addon) . '.yaml');
+        $file = settings_path('addons/' . $addon->handle() . '.yaml');
         File::put($file, $contents);
 
         Cache::clear();
@@ -165,27 +131,22 @@ class AddonsController extends CpController
 
         $this->success('Settings updated');
 
-        return ['success' => true, 'redirect' => route('addon.settings', Str::studlyToSlug($addon))];
+        return ['success' => true, 'redirect' => route('addon.settings', $addon->slug())];
     }
 
-    private function processFields($fieldset_name)
+    private function validateSubmission(Request $request, $fieldset)
     {
-        $fieldset = Fieldset::get($fieldset_name, 'addon');
-        $data = $this->request->input('fields');
+        $fields = $request->all();
 
-        foreach ($fieldset->fieldtypes() as $field) {
-            if (! in_array($field->getName(), array_keys($data))) {
-                continue;
-            }
+        $validation = (new ValidationBuilder($fields, $fieldset))->build();
 
-            $data[$field->getName()] = $field->process($data[$field->getName()]);
+        $validator = app('validator')->make($fields, $validation->rules(), [], $validation->attributes());
+
+        if ($validator->fails()) {
+            return [
+                'success' => false,
+                'errors'  => $validator->errors()->toArray()
+            ];
         }
-
-        // Get rid of null fields
-        $data = array_filter($data, function($value) {
-            return !is_null($value);
-        });
-
-        return $data;
     }
 }

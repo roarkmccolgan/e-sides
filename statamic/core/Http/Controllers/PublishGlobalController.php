@@ -16,7 +16,7 @@ class PublishGlobalController extends PublishController
      */
     public function edit(Request $request, $slug)
     {
-        $this->authorize("globals:$slug:edit");
+        $this->authorize("globals:$slug:view");
 
         $locale = $this->request->query('locale', site_locale());
 
@@ -33,7 +33,7 @@ class PublishGlobalController extends PublishController
             'env' => datastore()->getEnvInScope('globals.'.$slug)
         ];
 
-        $data = $this->populateWithBlanks($global);
+        $data = $this->addBlankFields($global->fieldset(), $global->processedData());
 
         return view('publish', [
             'extra'             => $extra,
@@ -41,7 +41,7 @@ class PublishGlobalController extends PublishController
             'content_data'      => $data,
             'content_type'      => 'global',
             'fieldset'          => $global->fieldset()->name(),
-            'title'             => array_get($data, 'title', $global->slug()),
+            'title'             => array_get($data, 'title', $global->title()),
             'uuid'              => $id,
             'uri'               => null,
             'url'               => null,
@@ -49,7 +49,8 @@ class PublishGlobalController extends PublishController
             'status'            => true,
             'locale'            => $locale,
             'is_default_locale' => $global->isDefaultLocale(),
-            'locales'           => $this->getLocales($id)
+            'locales'           => $this->getLocales($id),
+            'suggestions'       => $this->getSuggestions($global->fieldset()),
         ]);
     }
 
@@ -69,5 +70,18 @@ class PublishGlobalController extends PublishController
         return route('globals.edit', [
             'slug' => $global->slug(),
         ]);
+    }
+
+    /**
+     * Whether the user is authorized to publish the object.
+     *
+     * @param Request $request
+     * @return bool
+     */
+    protected function canPublish(Request $request)
+    {
+        $slug = $request->input('extra.default_slug');
+
+        return $request->user()->can("globals:$slug:edit");
     }
 }

@@ -1,3 +1,4 @@
+var Conditionals = require('./conditionals.js');
 var Vue = require('vue');
 
 module.exports = {
@@ -5,6 +6,8 @@ module.exports = {
     template: require('./fields.template.html'),
 
     index: [],
+
+    mixins: [Conditionals],
 
     props: [
         'fieldData', 'builder', 'fields', 'errors', 'fieldset-name', 'uuid',
@@ -22,7 +25,7 @@ module.exports = {
                 {value: 50, text: '50%'},
                 {value: 33, text: '33%'},
                 {value: 25, text: '25%'}
-            ]
+            ],
         }
     },
 
@@ -49,8 +52,22 @@ module.exports = {
                 this.fields = data.fields;
                 this.loading = false;
 
+                /**
+                 * Run the conditional validator only once the field and field data
+                 * are bound.
+                 *
+                 * $nextdTick just ensures that it happens after everything else is done.
+                 */
+                this.$nextTick(() => {
+                    this.runConditionals(this.fieldData);
+                });
+
                 this.$dispatch('fieldsetLoaded', data);
             });
+        },
+
+        componentName: function (field) {
+            return field.type.replace('.', '-') + '-fieldtype';
         },
 
         /**

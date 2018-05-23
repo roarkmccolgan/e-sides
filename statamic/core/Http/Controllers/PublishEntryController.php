@@ -35,17 +35,13 @@ class PublishEntryController extends PublishController
 
         $fieldset = $collection->fieldset();
 
-        $data = $this->populateWithBlanks($fieldset->name());
+        $data = $this->addBlankFields($fieldset);
 
         $extra = [
             'collection' => $collection->path(),
             'order_type' => $collection->order(),
             'route'      => $collection->route()
         ];
-
-        if ($collection->order() === 'date') {
-            $extra['datetime'] = Carbon::now()->format('Y-m-d');
-        }
 
         return view('publish', [
             'extra'             => $extra,
@@ -59,10 +55,11 @@ class PublishEntryController extends PublishController
             'url'               => null,
             'slug'              => null,
             'status'            => true,
-            'locale'            => default_locale(),
+            'locale'            => $this->locale(request()),
             'is_default_locale' => true,
             'locales'           => $this->getLocales(),
-            'taxonomies'        => $this->getTaxonomies($fieldset)
+            'taxonomies'        => $this->getTaxonomies($fieldset),
+            'suggestions'        => $this->getSuggestions($fieldset),
         ]);
     }
 
@@ -75,9 +72,9 @@ class PublishEntryController extends PublishController
      */
     public function edit($collection, $slug)
     {
-        $this->authorize("collections:$collection:edit");
+        $this->authorize("collections:$collection:view");
 
-        $locale = $this->request->query('locale', site_locale());
+        $locale = $this->locale($this->request);
 
         if (! $entry = Entry::whereSlug($slug, $collection)) {
             return redirect()->route('entries.show', $collection)->withErrors('No entry found.');
@@ -105,7 +102,7 @@ class PublishEntryController extends PublishController
             $extra['datetime'] = $datetime;
         }
 
-        $data = $this->populateWithBlanks($entry);
+        $data = $this->addBlankFields($entry->fieldset(), $entry->processedData());
 
         return view('publish', [
             'extra'              => $extra,
@@ -123,8 +120,21 @@ class PublishEntryController extends PublishController
             'locale'             => $locale,
             'is_default_locale'  => $entry->isDefaultLocale(),
             'locales'            => $this->getLocales($id),
-            'taxonomies'         => $this->getTaxonomies($entry->fieldset())
+            'taxonomies'         => $this->getTaxonomies($entry->fieldset()),
+            'suggestions'        => $this->getSuggestions($entry->fieldset()),
         ]);
+    }
+
+    /**
+     * Override the method and display the collection name.
+     *
+     * @param  Request  $request
+     * @param  Content  $content
+     * @return string
+     */
+    protected function buildSuccessMessage($request, $content)
+    {
+        return $content->collection()->title();
     }
 
     /**
@@ -161,5 +171,31 @@ class PublishEntryController extends PublishController
         }
 
         return $title;
+    }
+
+    /**
+     * Whether the user is authorized to publish the object.
+     *
+     * @param Request $request
+     * @return bool
+     */
+    protected function canPublish(Request $request)
+    {
+        $collection = $request->input('extra.collection');
+
+        return $request->user()->can(
+            $request->new ? "collections:$collection:create" : "collections:$collection:edit"
+        );
+    }
+
+    /**
+     * Return the locale from the request.
+     *
+     * @param  Request  $request
+     * @return string
+     */
+    private function locale(Request $request)
+    {
+        return $request->query('locale', site_locale());
     }
 }

@@ -1,4 +1,4 @@
-<section class="bg--dark">
+<section class="bg--dark space--xs">
 	<div class="container">
 		<div class="row">
 			{{ if news_event }}
@@ -6,7 +6,6 @@
 				<h2>{{ title }}</h2>
 			</div>
             <div class="col-sm-8 col-md-7">
-            	
             	{{ if image }}
 					{{ assets:image }}
 						{{ assets:image }}
@@ -48,38 +47,71 @@
             </div>
             {{ /news_event }}
 			{{ else }}
-			<div class="col-sm-10 col-md-8 col-sm-offset-1 col-md-offset-2">
-				<article>
-					<div class="article__title text-center">
-						<h1 class="h2">{{ title }}</h1>
+		</div>
+	</div>
+	{{ if image }}
+	
+	<div class="imagebg text-center height-50 mb--1" data-overlay="5">
+		<div class="background-image-holder">
+			{{ assets:image }}
+				<img src="{{ url }}" />
+			{{ /assets:image }}
+		</div>
+		<div class="container pos-vertical-center">
+			<div class="row">
+				<div class="col-sm-12">
+					<div class="article__title">
+						<h1>{{ title }}</h1>
 						<h5>
-							{{ author_name }} | 
-							<span class="length">{{ content | read_time }} minute read</span> |
+							<!-- {{ author_name }} | 
+							<span class="length">{{ content | read_time }} minute read</span> | -->
 							<span>{{ date format="F j, Y" }} in </span> 
 							{{ categories }}
 								{{ if index!=1 }}, {{ endif }}<a href="{{ url }}">{{ title }}</a>
 							 {{ /categories }}
 						</h5>
 					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	{{ /if }}
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-12">
+				<article>
+					{{ if !image }}
+					<div class="article__title text-center">
+						<h1 class="h2">{{ title }}</h1>
+						<h5>
+							<!-- {{ author_name }} | 
+							<span class="length">{{ content | read_time }} minute read</span> | -->
+							<span>{{ date format="F j, Y" }} in </span> 
+							{{ categories }}
+								{{ if index!=1 }}, {{ endif }}<a href="{{ url }}">{{ title }}</a>
+							 {{ /categories }}
+						</h5>
+					</div>
+					{{ /if }}
 					<div class="article__body">
-						{{ if image }}
-							{{ assets:image }}
-								{{ assets:image }}
-									<img src="{{ glide:url width='750' fit='crop' }}" />
-								{{ /assets:image }}
-							{{ /assets:image }}
-						{{ /if }}
-						
 						{{ content }}
 					</div>
 					<div class="article__share text-center">
-						<a class="btn bg--facebook btn--icon" href="https://www.facebook.com/sharer/sharer.php?u={{ current_url }}">
+						<a class="btn bg--twitter btn--icon" 
+						href="
+							https://www.linkedin.com/shareArticle?mini=true&
+							url={{ current_url | urlencode }}&
+							title={{ title | urlencode }}&
+							summary={{ content strip_tags='img|a|p|strong|br' safe_truncate='120' ensure_right='...'  | urlencode }}"
+						target="_blank">
 							<span class="btn__text">
-								<i class="socicon socicon-facebook"></i>
-								Share on Facebook
+								<i class="socicon socicon-linkedin"></i>
+								Share on LinkedIn
 							</span>
 						</a>
-						<a class="btn bg--twitter btn--icon" href="https://twitter.com/home?status={{ current_url }}">
+						<a class="btn bg--twitter btn--icon" href="
+							https://twitter.com/home?
+							status=%40eSIDES_eu%20%23bigdata%20%23bigdatatechnologies%20%23H2020.{{ current_url | urlencode }}" target="_blank">
 							<span class="btn__text">
 								<i class="socicon socicon-twitter"></i>
 								Share on Twitter
@@ -98,4 +130,30 @@
 {{ /if }}
 
 {{ section:page_scripts }}
+<script type="text/javascript">
+    $.fn.isOnScreen = function(){
+        var win = $(window);
+        
+        var viewport = {
+            top : win.scrollTop(),
+            left : win.scrollLeft()
+        };
+        viewport.right = viewport.left + win.width();
+        viewport.bottom = viewport.top + win.height();
+        
+        var bounds = this.offset();
+        bounds.right = bounds.left + this.outerWidth();
+        bounds.bottom = bounds.top + this.outerHeight();
+        
+        return (!(viewport.right < bounds.left || viewport.left > bounds.right || viewport.bottom < bounds.top || viewport.top > bounds.bottom));
+        
+    };
+    $(function() {
+        if($('footer').isOnScreen()){
+            $('footer').addClass('footer--sticky');
+        }else{
+            $('footer').removeClass('footer--sticky');
+        }
+    });            
+</script>
 {{ /section:page_scripts }}

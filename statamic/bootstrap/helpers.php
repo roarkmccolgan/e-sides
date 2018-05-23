@@ -116,7 +116,12 @@ function cp_route($route, $params = [])
 
 function cp_resource_url($url)
 {
-    return URL::assemble(SITE_ROOT, pathinfo(request()->getScriptName())['basename'], RESOURCES_ROUTE, 'cp', $url);
+    return resource_url('cp/' . $url);
+}
+
+function resource_url($url)
+{
+    return URL::assemble(SITE_ROOT, pathinfo(request()->getScriptName())['basename'], RESOURCES_ROUTE, $url);
 }
 
 function path($from, $extra = null)
@@ -207,27 +212,11 @@ function carbon($value)
 }
 
 /**
- * @return \Statamic\Repositories\AddonRepository
- */
-function addon_repo()
-{
-    return app('Statamic\Repositories\AddonRepository');
-}
-
-/**
  * @return \Statamic\DataStore
  */
 function datastore()
 {
     return app('Statamic\DataStore');
-}
-
-/**
- * @return \Statamic\Extend\Management\Loader
- */
-function resource_loader()
-{
-    return app('Statamic\Extend\Management\Loader');
 }
 
 /**
@@ -328,24 +317,6 @@ function nav()
 }
 
 /**
- * Instantiate a custom collection filter instance
- *
- * @param string                        $plugin_name
- * @param \Statamic\Data\DataCollection $collection
- * @param array                         $context
- * @param array                         $params
- * @return \Statamic\Extend\FilterInterface
- */
-function collection_filter($plugin_name, DataCollection $collection, $context = [], $params = [])
-{
-    $class = Str::studly($plugin_name);
-
-    $class = "Statamic\\Addons\\{$class}\\{$class}Filter";
-
-    return new $class($collection, $context, $params);
-}
-
-/**
  * Convert a width to a bootstrap column class
  *
  * @param int $width Percentage as a width
@@ -405,11 +376,10 @@ function active_for($url)
  */
 function nav_is($url)
 {
-    $url = URL::makeRelative($url);
-    $url = ltrim(URL::removeSiteRoot($url), '/');
     $url = preg_replace('/^index\.php\//', '', $url);
+    $current = request()->url();
 
-    return request()->is($url . '*');
+    return $url === $current || Str::startsWith($current, $url.'/');
 }
 
 /**
@@ -431,7 +401,13 @@ function format_url($url)
  */
 function markdown($content)
 {
-    return MarkdownExtra::defaultTransform($content);
+    $parser = new MarkdownExtra;
+
+    if (Config::get('theming.markdown_hard_wrap')) {
+        $parser->hard_wrap = true;
+    }
+
+    return $parser->transform($content);
 }
 
 /**
@@ -589,21 +565,44 @@ function refreshing_addons()
  */
 function cp_middleware()
 {
-    return ['locale', 'outpost'];
+    return ['cp-enabled', 'enforce-default-cp-locale', 'set-cp-locale', 'outpost'];
+}
+
+/**
+ * Sanitizes a string
+ *
+ * @param bool $antlers  Whether Antlers (curly braces) should be escaped.
+ * @return string
+ */
+
+function sanitize($value, $antlers = true)
+{
+    if (is_array($value)) {
+        return sanitize_array($value, $antlers);
+    }
+
+    $value = htmlentities($value);
+
+    if ($antlers) {
+        $value = str_replace(['{', '}'], ['&lbrace;', '&rbrace;'], $value);
+    }
+
+    return $value;
 }
 
 /**
  * Recusive friendly method of sanitizing an array.
  *
+ * @param bool $antlers  Whether Antlers (curly braces) should be escaped.
  * @return array
  */
-function sanitize_array($array)
+function sanitize_array($array, $antlers = true)
 {
     $result = array();
 
     foreach ($array as $key => $value) {
         $key = htmlentities($key);
-        $result[$key] = is_array($value) ? sanitize_array($value) : htmlentities($value);
+        $result[$key] = sanitize($value, $antlers);
     }
 
     return $result;
@@ -654,4 +653,48 @@ if (! function_exists('array_filter_use_both')) {
 
         return $items;
     }
+}
+
+if (! function_exists('tap')) {
+    /**
+     * Call the given Closure with the given value then return the value.
+     *
+     * @param  mixed  $value
+     * @param  callable  $callback
+     * @return mixed
+     */
+    function tap($value, $callback)
+    {
+        $callback($value);
+        return $value;
+    }
+}
+
+if (! function_exists('mb_str_word_count')) {
+    /**
+     * Multibyte version of str_word_count
+     *
+     * @param string $string
+     * @param int $format
+     * @param string $charlist
+     *
+     * @link https://stackoverflow.com/a/17725577/1569621
+     */
+    function mb_str_word_count($string, $format = 0, $charlist = '[]')
+    {
+        $words = empty($string = trim($string)) ? [] : preg_split('~[^\p{L}\p{N}\']+~u', $string);
+
+        switch ($format) {
+            case 0:
+                return count($words);
+                break;
+            case 1:
+            case 2:
+                return $words;
+                break;
+            default:
+                return $words;
+                break;
+        }
+    };
 }

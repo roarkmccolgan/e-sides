@@ -13,15 +13,15 @@ use Statamic\API\Helper;
 use Statamic\API\Path;
 use Statamic\API\Stache;
 use Statamic\API\Str;
+use Illuminate\Http\Request;
 use Statamic\Assets\AssetCollection;
-use Statamic\Imaging\ImageGenerator;
-use Statamic\Imaging\ThumbnailUrlBuilder;
-use Statamic\Contracts\Imaging\UrlBuilder;
+use Statamic\CP\Publish\ProcessesFields;
+use Statamic\CP\Publish\ValidationBuilder;
 use Statamic\Presenters\PaginationPresenter;
 
 class AssetsController extends CpController
 {
-    private static $thumb_builder;
+    use ProcessesFields;
 
     /**
      * The main assets routes, which redirects to the browse the first container.
@@ -30,7 +30,7 @@ class AssetsController extends CpController
      */
     public function index()
     {
-        $this->access('assets:*:edit');
+        $this->access('assets:*:view');
 
         $containers = AssetContainer::all();
 
@@ -46,7 +46,7 @@ class AssetsController extends CpController
      */
     public function browse($container, $folder = '/')
     {
-        $this->access('assets:'.$container.':edit');
+        $this->access('assets:'.$container.':view');
 
         $title = translate('cp.browsing_assets');
 
@@ -60,6 +60,9 @@ class AssetsController extends CpController
      */
     public function json()
     {
+        // Crank it up because generating the images will take some power.
+        app()->toEleven();
+
         // Get the path from the request, and normalize it.
         $path = $this->request->path;
         $path = ($path === '') ? '/' : $path;
@@ -78,17 +81,7 @@ class AssetsController extends CpController
         $assets = $assets->slice($offset, $perPage);
         $paginator = new LengthAwarePaginator($assets, $totalAssetCount, $perPage, $currentPage);
 
-        foreach ($assets as &$asset) {
-            // Add thumbnails to all image assets.
-            if ($asset->isImage()) {
-                $asset->set('thumbnail', $this->thumbnail($asset, 'small'));
-                $asset->set('toenail', $this->thumbnail($asset, 'large'));
-            }
-
-            // Set some values for better listing formatting.
-            $asset->set('size_formatted', Str::fileSizeForHumans($asset->size(), 0));
-            $asset->set('last_modified_formatted', $asset->lastModified()->format(Config::get('cp.date_format')));
-        }
+        $assets = $this->supplementAssetsForDisplay($assets);
 
         // Get data about the subfolders in the requested asset folder.
         $folders = [];
@@ -115,6 +108,42 @@ class AssetsController extends CpController
                 'segments'      => array_get($paginator->render(new PaginationPresenter($paginator)), 'segments')
             ]
         ];
+    }
+
+    public function search(Request $request)
+    {
+        $term = $request->term;
+
+        $assets = ($request->restrictNavigation)
+            ? AssetContainer::find($request->container)->assetFolder($request->folder)->assets()
+            : Asset::all();
+
+        $assets = $assets->filterWithKey(function ($asset, $path) use ($term) {
+            return str_contains(mb_strtolower($path), mb_strtolower($term));
+        });
+
+        $assets = $this->supplementAssetsForDisplay($assets);
+
+        return [
+            'assets' => $assets->toArray()
+        ];
+    }
+
+    private function supplementAssetsForDisplay($assets)
+    {
+        foreach ($assets as &$asset) {
+            // Add thumbnails to all image assets.
+            if ($asset->isImage()) {
+                $asset->set('thumbnail', $this->thumbnail($asset, 'small'));
+                $asset->set('toenail', $this->thumbnail($asset, 'large'));
+            }
+
+            // Set some values for better listing formatting.
+            $asset->set('size_formatted', Str::fileSizeForHumans($asset->size(), 0));
+            $asset->set('last_modified_formatted', $asset->lastModified()->format(Config::get('cp.date_format')));
+        }
+
+        return $assets;
     }
 
     /**
@@ -144,6 +173,9 @@ class AssetsController extends CpController
 
     public function store()
     {
+        // Crank it up because generating an image may take some power.
+        app()->toEleven();
+
         if (! $this->request->hasFile('file')) {
             return response()->json($this->request->file('file')->getErrorMessage(), 400);
         }
@@ -181,9 +213,9 @@ class AssetsController extends CpController
 
         $asset = $this->supplementAssetForEditing($container->asset($path));
 
-        $this->authorize("assets:{$container_id}:edit");
+        $this->authorize("assets:{$container_id}:view");
 
-        $fields = $this->populateWithBlanks($asset);
+        $fields = $this->addBlankFields($asset->fieldset(), $asset->processedData());
 
         return ['asset' => $asset->toArray(), 'fields' => $fields];
     }
@@ -196,7 +228,9 @@ class AssetsController extends CpController
 
         $this->authorize("assets:{$container_id}:edit");
 
-        $fields = $this->processFields($asset, $this->request->all());
+        $this->validateAssetSubmission($this->request, $fieldset = $asset->fieldset());
+
+        $fields = $this->processFields($fieldset, $this->request->all());
 
         $asset->data($fields);
 
@@ -210,47 +244,20 @@ class AssetsController extends CpController
         return ['success' => true, 'message' => 'Asset updated', 'asset' => $asset->toArray()];
     }
 
-    private function populateWithBlanks($arg)
+    private function validateAssetSubmission(Request $request, $fieldset)
     {
-        // Get a fieldset and data
-        $fieldset = $arg->fieldset();
-        $data = $arg->processedData();
+        $fields = $request->all();
 
-        // Get the fieldtypes
-        $fieldtypes = collect($fieldset->fieldtypes())->keyBy(function($ft) {
-            return $ft->getName();
-        });
+        $validation = (new ValidationBuilder($fields, $fieldset))->build();
 
-        // Build up the blanks
-        $blanks = [];
-        foreach ($fieldset->fields() as $name => $config) {
-            if (! $default = array_get($config, 'default')) {
-                $default = $fieldtypes->get($name)->blank();
-            }
+        $validator = app('validator')->make(
+            array_dot(['fields' => $fields]), // validation builder will output everything prefixed with `fields.`
+            $validation->rules(), [], $validation->attributes()
+        );
 
-            $blanks[$name] = $default;
-            if ($fieldtype = $fieldtypes->get($name)) {
-                $blanks[$name] = $fieldtype->preProcess($default);
-            }
+        if ($validator->fails()) {
+            $this->throwValidationException($request, $validator);
         }
-
-        return array_merge($blanks, $data);
-    }
-
-    protected function processFields($asset, $fields)
-    {
-        foreach ($asset->fieldset()->fieldtypes() as $field) {
-            if (! in_array($field->getName(), array_keys($fields))) {
-                continue;
-            }
-
-            $fields[$field->getName()] = $field->process($fields[$field->getName()]);
-        }
-
-        // Get rid of null fields
-        $fields = array_filter($fields);
-
-        return $fields;
     }
 
     public function delete()
@@ -272,54 +279,10 @@ class AssetsController extends CpController
 
     private function thumbnail($asset, $preset = null)
     {
-        $params = ($preset) ? ['p' => "cp_thumbnail_$preset"] : [];
-
-        return $this->thumbnailBuilder()->build($asset, $params);
-    }
-
-    private function thumbnailBuilder()
-    {
-        if (self::$thumb_builder) {
-            return self::$thumb_builder;
-        }
-
-        self::$thumb_builder = (Config::get('assets.image_manipulation_cached'))
-            ? app(UrlBuilder::class)
-            : new ThumbnailUrlBuilder(app(ImageGenerator::class));
-
-        return self::$thumb_builder;
-    }
-
-    public function replaceEditedImage()
-    {
-        $asset = Asset::find($this->request->id);
-
-        $handle = fopen($this->request->new_url, 'rb');
-        $contents = stream_get_contents($handle);
-        fclose($handle);
-
-        $asset->replace($contents);
-
-        return [
-            'success' => true,
-            'thumbnail' => $this->thumbnail($asset, 'large')
-        ];
-    }
-
-    public function editorAuth()
-    {
-        $apiKey = '';
-        $apiSecret = '';
-        $salt = rand(0, 1000);
-        $time = time();
-        $sig = sha1($apiKey . $apiSecret . $time . $salt);
-
-        return [
-            'timestamp' => $time,
-            'salt' => $salt,
-            'encryptionMethod' => 'sha1',
-            'signature' => $sig
-        ];
+        return route('asset.thumbnail', [
+            'asset' => base64_encode($asset->id()),
+            'size' => $preset
+        ]);
     }
 
     public function download($container_id, $path)
@@ -351,7 +314,7 @@ class AssetsController extends CpController
     public function rename($container_id, $path)
     {
         $this->validate($this->request, [
-            'filename' => 'required|alpha_dash'
+            'filename' => 'required|alpha_dash|unique_asset_filename:'.$container_id.','.$path
         ]);
 
         $container = AssetContainer::find($container_id);
@@ -371,9 +334,12 @@ class AssetsController extends CpController
     private function supplementAssetForEditing($asset)
     {
         if ($asset->isImage()) {
-            $asset->setSupplement('preview', $this->thumbnail($asset));
             $asset->setSupplement('width', $asset->width());
             $asset->setSupplement('height', $asset->height());
+
+            // Public asset containers can use their regular URLs.
+            // Private ones don't have URLs so we'll generate an actual-size "thumbnail".
+            $asset->setSupplement('preview', $asset->container()->url() ? $asset->absoluteUrl() : $this->thumbnail($asset));
         }
 
         $asset->setSupplement('last_modified_relative', $asset->lastModified()->diffForHumans());

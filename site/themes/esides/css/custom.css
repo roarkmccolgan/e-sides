@@ -48,16 +48,52 @@ html, body{
 .homeslider{
 	background: #252525;
 }
-.slider.height-75 {
+.slider.height-75, .slider.height-50, .slider.height-60 {
   height: auto;
 }
 .slider.height-75 .slides .flickity-slider > li {
   height: 75vh;
   padding: 0;
 }
+.slider.height-50 .slides .flickity-slider > li {
+  height: 50vh;
+  padding: 0;
+}
+.slider.height-60 .slides .flickity-slider > li {
+  height: 60vh;
+  padding: 0;
+}
+.masonry__item .feature-5 i{
+	width: initial;
+	float: none;
+}
+img.spinning{
+    -webkit-transition: -webkit-transform .8s ease-in-out;
+    -ms-transition: -ms-transform .8s ease-in-out;
+    transition: transform .8s ease-in-out;    
+}
+img.spinning:hover{
+    transform:rotate(360deg);
+    -ms-transform:rotate(360deg);
+    -webkit-transform:rotate(360deg);
+}
+.partners{
+	min-height: 80px;
+	display: block;
+}
+
+.card-2 .card__body h4.ne{
+	min-height: 100px;
+}
 @media all and (min-width: 768px) {
   .slider.height-75 .slides li.imagebg {
     min-height: 75vh;
+  }
+  .slider.height-50 .slides li.imagebg {
+    min-height: 50vh;
+  }
+  .slider.height-60 .slides li.imagebg {
+    min-height: 60vh;
   }
 }
 .height-75 {

@@ -12,7 +12,7 @@ class GlobalsController extends CpController
 {
     public function index()
     {
-        $this->access('globals:*:edit');
+        $this->access('globals:*:view');
 
         $globals = GlobalSet::all();
 
@@ -28,13 +28,13 @@ class GlobalsController extends CpController
     public function manage()
     {
         return view('globals.configure', [
-            'title' => t('cp.globals')
+            'title' => t('global_sets'),
         ]);
     }
 
     public function get()
     {
-        $this->access('globals:*:edit');
+        $this->access('globals:*:view');
 
         $globals = GlobalSet::all()->supplement('title', function ($global) {
             return $global->title();
@@ -52,6 +52,8 @@ class GlobalsController extends CpController
 
     public function store()
     {
+        $this->access('globals:*:edit');
+
         $title = $this->request->input('title');
 
         $slug = ($this->request->has('slug')) ? $this->request->input('slug') : Str::slug($title, '_');
@@ -89,7 +91,10 @@ class GlobalsController extends CpController
     {
         $global = GlobalSet::whereHandle($global);
 
-        return view('globals.edit', compact('global'));
+        return view('globals.edit', [
+            'global' => $global,
+            'title'  => $global->title(),
+        ]);
     }
 
     public function update($global)

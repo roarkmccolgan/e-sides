@@ -8,14 +8,14 @@
     	<div v-if="hasDate" class="date-time-container">
 
     		<div class="col-date">
-    			<div class="daterange daterange--single" :data-datetime="date" @focus="openCalendar()" @blur="closeCalendar()">
+    			<div class="daterange daterange--single" :data-datetime="date" v-el:date>
     				<span class="icon icon-calendar"></span>
     				<span class="icon icon-remove" @click="removeDate" v-if="blankAllowed">&times;</span>
     			</div>
     		</div>
     		<div class="col-time">
     			<div class="time-fieldtype" v-if="timeAllowed">
-    				<time-fieldtype v-ref:time v-show="hasTime" :data.sync="time"></time-fieldtype>
+    				<time-fieldtype v-ref:time v-show="hasTime" :data.sync="time" :required="timeRequired"></time-fieldtype>
     				<button type="button" class="btn btn-default btn-icon add-time" v-show="!hasTime" @click="addTime" tabindex="0">
     					<span class="icon icon-clock"></span>
     				</button>
@@ -32,6 +32,8 @@
 
 module.exports = {
 
+    mixins: [Fieldtype],
+
     props: {
         name: String,
         data: {},
@@ -41,7 +43,8 @@ module.exports = {
     data: function() {
         return {
             calendar: null,
-            time: null
+            time: null,
+            autoBindChangeWatcher: false
         }
     },
 
@@ -59,7 +62,19 @@ module.exports = {
         },
 
         timeAllowed: function() {
-            return this.config.allow_time !== false;
+            return this.timeRequired || this.allowTime;
+        },
+
+        allowTime: function() {
+            if (this.config.allow_time == undefined) {
+                return false;
+            }
+
+            return this.config.allow_time != false;
+        },
+
+        timeRequired: function () {
+            return this.config.require_time;
         },
 
         blankAllowed: function() {
@@ -149,30 +164,35 @@ module.exports = {
             });
         },
 
-        openCalendar: function () {
-            // this.calendar.calendarOpen();
-        },
-
-        closeCalendar: function () {
-            // this.calendar.calendarClose();
-        },
+        focus() {
+            setTimeout(() => $(this.$els.date).find('.dr-input .dr-date').click(), 200);
+        }
 
     },
 
     ready: function() {
+        const timeFormat = 'HH:mm';
+        const dateFormat = 'YYYY-MM-DD';
+
+        if (!this.data && !this.blankAllowed) {
+            const format = (this.timeRequired || this.config.show_time)
+                ? dateFormat + ' ' + timeFormat
+                : dateFormat;
+
+            this.data = moment().format(format);
+        }
+
+        else if (this.data && this.timeRequired && !this.hasTime) {
+            this.data += ' ' + moment().format(timeFormat);
+        }
+
         if (this.data) {
             this.time = this.data.substr(11);
         }
 
-        // If there's no data (ie. a blank field) and blanks are _not_ allowed, we want
-        // to initialize the data to the current date, so that the value will get
-        // saved without the user needing to interact with the field first.
-        if (!this.data && !this.blankAllowed) {
-            this.data = moment().format('YYYY-MM-DD');
-        }
-
         this.watchTime();
         this.bindCalendar();
+        this.bindChangeWatcher();
     }
 };
 </script>

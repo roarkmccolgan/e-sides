@@ -22,7 +22,7 @@ class TaxonomyTermsController extends CpController
      */
     public function show($group)
     {
-        $this->access("taxonomies:$group:edit");
+        $this->access("taxonomies:$group:view");
 
         if (! Taxonomy::whereHandle($group)) {
             abort(404, "Taxonomy group [$group] does not exist.");
@@ -31,7 +31,7 @@ class TaxonomyTermsController extends CpController
         $title = Taxonomy::whereHandle($group)->title();
 
         return view('taxonomies.terms', [
-            'title' => 'Taxonomies in ' . $title,
+            'title' => $title,
             'group' => $group,
             'group_title' => $title,
             'new_taxonomy_link' => route('taxonomy.create', compact('group'))
@@ -48,7 +48,7 @@ class TaxonomyTermsController extends CpController
      */
     public function get($folder)
     {
-        $this->access("taxonomies:$folder:edit");
+        $this->access("taxonomies:$folder:view");
 
         $taxonomy = Taxonomy::whereHandle($folder);
 

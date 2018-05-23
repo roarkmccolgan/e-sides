@@ -1,5 +1,6 @@
 d32e14fb-08c9-44c2-aaf8-21200852bafd:
   title: Admin
+  slug: admin
   permissions:
     - super
 967f623d-5f99-406f-8935-bb4241e9616b:
@@ -8,19 +9,29 @@ d32e14fb-08c9-44c2-aaf8-21200852bafd:
   permissions:
     - cp:access
     - content:view_drafts_on_frontend
+    - pages:view
     - pages:edit
+    - collections:slides:view
     - collections:slides:edit
     - collections:slides:create
     - collections:slides:delete
+    - collections:articles:view
     - collections:articles:edit
     - collections:articles:create
     - collections:articles:delete
+    - taxonomies:categories:view
     - taxonomies:categories:edit
     - taxonomies:categories:create
     - taxonomies:categories:delete
+    - assets:main:view
     - assets:main:edit
     - assets:main:create
     - assets:main:delete
+    - users:view
     - users:edit
     - users:create
     - users:delete
+deb09ecf-b80d-4359-be42-530b837eee78:
+  title: View
+  slug: view
+  permissions: [ ]

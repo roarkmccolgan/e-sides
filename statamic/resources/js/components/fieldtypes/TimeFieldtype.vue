@@ -19,7 +19,7 @@
         />
         <div>
             <span class="icon icon-remove" tabindex="0"
-                  v-show="hasTime" v-if="hasTime"
+                  v-if="!isRequired && hasTime"
                   @click="clear" @keyup.enter.space="clear">
                   &times;
             </span>
@@ -31,7 +31,11 @@
 
 module.exports = {
 
-    props: ['data', 'config', 'name'],
+    mixins: [Fieldtype],
+
+    props: {
+        required: Boolean
+    },
 
     computed: {
         hour: {
@@ -71,7 +75,11 @@ module.exports = {
         },
 
         hasTime: function() {
-            return this.data !== null;
+            return this.required || this.data !== null;
+        },
+
+        isRequired() {
+            return this.required;
         }
     },
 
@@ -120,6 +128,10 @@ module.exports = {
 
         focusMinute: function() {
             $(this.$els.minute).focus().select();
+        },
+
+        focus() {
+            this.$els.hour.focus();
         }
     }
 };

@@ -36,7 +36,7 @@ module.exports = {
     methods: {
         getFieldtypes: function() {
             var self = this;
-            this.$http.get(cp_url('/fieldsets/fieldtypes')).success(function(data) {
+            this.$http.get(cp_url('/fieldtypes')).success(function(data) {
                 _.each(data, function(fieldtype) {
                     self.fieldtypes.push(fieldtype);
                 });
@@ -66,6 +66,12 @@ module.exports = {
 
                 self.fieldset = fieldset;
                 self.loading = false;
+
+                // Add the watcher after the request is complete otherwise it will
+                // be marked as changed even though the user did nothing.
+                this.$watch('fieldset', () => {
+                    this.$dispatch('changesMade', true);
+                }, { deep: true });
             }).error(function (data) {
                 self.errorMessage = data.message;
             });
@@ -101,6 +107,7 @@ module.exports = {
                 slug: this.slug,
                 fieldset: this.fieldset
             }).success(function(data) {
+                this.$dispatch('changesMade', false);
                 window.location = data.redirect;
             });
         }

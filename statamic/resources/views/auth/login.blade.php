@@ -8,7 +8,7 @@
             <div class="login-oauth-providers">
                 @foreach (Statamic\API\OAuth::providers() as $provider => $data)
                     <div class="provider">
-                        <a href="{{ Statamic\API\OAuth::route($provider) }}?redirect={{ parse_url(route('cp'))['path'] }}" class="btn btn-block btn-outside">
+                        <a href="{{ Statamic\API\OAuth::route($provider) }}?redirect={{ parse_url(route('cp'))['path'] }}" class="btn btn-block btn-primary">
                             {{ t('login_with', ['provider' => array_get($data, 'label', \Statamic\API\Str::title($provider))]) }}
                         </a>
                     </div>
@@ -41,7 +41,7 @@
             </div>
 
             <div class="form-group">
-                <label>{{ trans_choice('cp.passwords', 1) }}</label>
+                <label>{{ t('password') }}</label>
                 <input type="password" class="form-control" name="password" id="password">
             </div>
 
@@ -51,7 +51,10 @@
             </div>
 
             <div>
-                <button type="submit" class="btn btn-outside btn-block">{{ trans('cp.login') }}</button>
+                <button type="submit" class="btn btn-primary btn-block">{{ trans('cp.login') }}</button>
+                @if (! $oauth)
+                    <small class="block mt-16"><a href="{{ route('login.reset')}}">{{ t('forgot_password')}}</a></small>
+                @endif
             </div>
         </form>
     </login>

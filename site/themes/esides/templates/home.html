@@ -4,7 +4,7 @@
 	<script src="http://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script>
 <![endif]-->
 {{ /section:extra_css }}
-<section class="space-bottom--sm cover homeslider height-75 imagebg text-center slider slider--ken-burns" data-arrows="true" data-paging="true">
+<section class="cover homeslider height-60 imagebg text-center slider slider--ken-burns" data-arrows="true" data-paging="true">
 	<ul class="slides">
 		{{ collection:slides sort="date:asc" }}
 		<li class="imagebg" data-overlay="4">
@@ -28,42 +28,62 @@
 						</a>
 						{{ elseif video || youtube_url }}
 						<div class="modal-instance" style="margin-top: 15px;">
-                            <a class="btn btn--primary type--uppercase modal-trigger" href="#">
-                                <span class="btn__text">
-                                    &#9654; {{ button.btn-link }}
-                                </span>
-                            </a>
-                            <div class="modal-container">
-                                <div class="modal-content bg-dark" data-width="60%" data-height="60%">
-                                	{{ if video }}
-	                                    <video id="my-video" class="video-js vjs-fluid vjs-big-play-centered" controls preload="auto"
-											poster="{{theme:img src="placeholderbg.png"}}"
-											data-setup="{}">
-										{{ assets:video }}
-											  <source src="{{ url }}" type="video/{{ extension }}">
+							<a class="btn btn--primary type--uppercase modal-trigger" href="#">
+								<span class="btn__text">
+									&#9654; {{ button.btn-link }}
+								</span>
+							</a>
+							<div class="modal-container">
+								<div class="modal-content bg-dark" data-width="60%" data-height="60%">
+									{{ if video }}
+									<video id="my-video" class="video-js vjs-fluid vjs-big-play-centered" controls preload="auto"
+									poster="{{theme:img src="placeholderbg.png"}}"
+									data-setup="{}">
+									{{ assets:video }}
+									<source src="{{ url }}" type="video/{{ extension }}">
 										{{ /assets:video }}
 										<p class="vjs-no-js">
-										  To view this video please enable JavaScript, and consider upgrading to a web browser that
-										  <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+											To view this video please enable JavaScript, and consider upgrading to a web browser that
+											<a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
 										</p>
-										</video>
+									</video>
 									{{ elseif youtube_url }}
-										<iframe src="{{ youtube_url }}" frameborder="0" allowfullscreen></iframe>
+									<iframe src="{{ youtube_url }}" frameborder="0" allowfullscreen></iframe>
 									{{ /if }}
-                                </div>
-                                <!--end of modal-content-->
-                            </div>
-                            <!--end of modal-container-->
-                        </div>
+								</div>
+								<!--end of modal-content-->
+							</div>
+							<!--end of modal-container-->
+						</div>
 						{{ /if }}
 					</div>
 				</div>
 			</div>
-		{{ /collection:slides }}
-	</ul>
-</section>
+			{{ /collection:slides }}
+		</ul>
+	</section>
+	<section class="space--xxs unmarg--bottom unpad--bottom">
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-12">
+					<h4 class="bg--dark unmarg--bottom">Latest Content</h4>
+					<ol class="breadcrumbs unmarg--bottom">
+						{{ collection from="resources|news_events" paginate="false" as="posts" limit="4" sort="date:desc" }}
+							{{ posts }}
+								<li>
+									<a href="{{ url }}" title="{{ title }}">{{ title safe_truncate="35" }}&hellip;</a>
+								</li>
+							{{ /posts }}
+						{{ /collection }}
+					</ol>
+				</div>
+			</div>
+		</div>
+	</section>
+		
 
-{{ section:page_scripts }}
-<script src="http://vjs.zencdn.net/5.19.1/video.js"></script>
-<script src="{{ theme:js src="ytplayer.min" }}"></script>
-{{ /section:page_scripts }}
+	{{ section:page_scripts }}
+	<script src="http://vjs.zencdn.net/5.19.1/video.js"></script>
+
+	<script src="{{ theme:js src="ytplayer.min" }}"></script>
+	{{ /section:page_scripts }}

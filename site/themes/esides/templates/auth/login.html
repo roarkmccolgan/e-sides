@@ -5,7 +5,7 @@
 			<div class="col-sm-6 col-sm-offset-3">
 				<div class="boxed boxed--border">
 					<h2>Login to continue</h2>
-					{{ user:login_form redirect="/home" }}
+					{{ user:login_form redirect="/collaborative-platform" allow_request_redirect="true" }}
 
 				    {{ if errors }}
 				        <strong>Error!</strong>
@@ -22,7 +22,7 @@
 					<div class="row">
 						<div class="col-sm-12">
 							<label>Email</label>
-	            			<input type="text" name="email" value="{{ old:email }}" />
+	            			<input type="text" name="username" value="{{ old:username }}" />
 						</div>
 						<div class="col-sm-12">
 							<label>Password</label>

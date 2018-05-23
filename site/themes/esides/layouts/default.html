@@ -7,6 +7,30 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="e-Sides Project">
 
+        <!-- Check it out: this will display our new meta description, or default to a fallback phrase -->
+        <meta name="description" content="{{ content strip_tags="img|a|p|br|strong" safe_truncate="120" ensure_right="..." }}" />
+        <title itemprop='name'>{{ title }} | {{ site_name }}</title>
+
+        <!-- Opengraph (for Facebook, LinkedIn, Pinterest, Slack, etc.) -->
+        <meta property="og:locale" content="en_GB" />
+        <meta property="og:type" content="website" />
+        <!-- On Facebook, this will show the title of the entry, or default to my name -->
+        <meta property="og:title" content="{{ title or "e-Sides" }}" />
+        <!-- Here's our entry-specific meta description again, plus fallback -->
+        <meta property="og:description" content="{{ content strip_tags="img|a|p|br|strong|u|ul|li" safe_truncate="190" ensure_right="..." }}" />
+        <meta property="og:url" content="{{ site_url or url }}" />
+        <meta property="og:site_name" content="{{ title }} | {{ site_name }}" />
+        <meta property="og:image" content="{{ site_url }}{{ image or hero_image | url or "http://e-sides.eu/assets/e-sides.jpg" }}" />
+
+        <!-- Twitter -->
+        <meta name="twitter:card" content="summary" />
+        <!-- We're taking the same approach on Twitter: show the custom value, or default to a back-up -->
+        <meta name="twitter:title" content="{{ title or "Cameron Scott" }}" />
+        <meta name="twitter:description" content="{{ content strip_tags="img|a|p|br|strong|u|ul|li" safe_truncate="120" ensure_right="..." }}" />
+        <meta name="twitter:site" content="@eSIDES_eu" />
+        <meta name="twitter:creator" content="@eSIDES_eu" />
+        <meta name="twitter:image" content="{{ site_url }}{{ image or hero_image | url or "http://e-sides.eu/assets/e-sides.jpg" }}" />
+
         <link href="{{ theme:css src="stack-interface" }}" rel="stylesheet" type="text/css" media="all">
         <link href="{{ theme:css src="socicon" }}" rel="stylesheet" type="text/css" media="all">
         <link href="{{ theme:css src="iconsmind" }}" rel="stylesheet" type="text/css" media="all" />
@@ -16,10 +40,10 @@
         <link href="{{ theme:css src="lightbox.min" }}" rel="stylesheet" type="text/css" media="all" />
         <link href="{{ theme:css src="flickity" }}" rel="stylesheet" type="text/css" media="all" />
         <link href="{{ theme:css src="theme" }}" rel="stylesheet" type="text/css" media="all" />
-        <link href="{{ theme:css src="theme-serpent" }}" rel="stylesheet" type="text/css" media="all" />
+        <link href="{{ theme:css src="theme-serpent" }}?id=2" rel="stylesheet" type="text/css" media="all" />
         <link href="{{ theme:css src="flip" }}" rel="stylesheet" type="text/css" media="all" />
         {{ yield:extra_css }}
-        <link href="{{ theme:css src="custom" }}?id=2" rel="stylesheet" type="text/css" media="all" />
+        <link href="{{ theme:css src="custom" }}?id=9" rel="stylesheet" type="text/css" media="all" />
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:200,300,400,400i,500,600,700" rel="stylesheet">  
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:200,300,400,400i,500,600,700%7CMerriweather:300,300i%7CMaterial+Icons" rel="stylesheet">
           
@@ -42,6 +66,7 @@
         <script src="{{ theme:js src="countdown.min" }}"></script>
         <script src="{{ theme:js src="smooth-scroll.min" }}"></script>
         <script src="{{ theme:js src="isotope.min" }}"></script>
+        <script src="{{ theme:js src="imageMapResizer.min" }}"></script>
         {{ yield:extra_scripts }}
         <script src="{{ theme:js src="scripts" }}"></script>
         {{ yield:page_scripts }}
@@ -64,11 +89,12 @@
                 
             };
             $(function() {
-                if($('footer').isOnScreen()){
+                /*if($('footer').isOnScreen()){
                     $('footer').addClass('footer--sticky');
                 }else{
                     $('footer').removeClass('footer--sticky');
-                }
+                }*/
+                $('map').imageMapResize();
             });            
         </script>
         <!-- Go to www.addthis.com/dashboard to customize your tools --> <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-592fb7ec22347dc9"></script> 

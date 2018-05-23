@@ -33,13 +33,21 @@ class FormListener extends Listener
     {
         $fields = Request::all();
 
-        $params = Crypt::decrypt(Request::input('_params'));
+        if (! $params = Request::input('_params')) {
+            return response('Invalid request.', 400);
+        }
+
+        $params = Crypt::decrypt($params);
         unset($fields['_params']);
         $formset = array_get($params, 'formset');
 
         $form = Form::get($formset);
 
         $submission = $form->createSubmission();
+
+        if ($form->formset()->get('sanitize', true)) {
+            $fields = sanitize_array($fields);
+        }
 
         try {
             $submission->data($fields);
@@ -58,7 +66,9 @@ class FormListener extends Listener
             return $this->formFailure($params, $errors, $formset);
         }
 
-        $submission->save();
+        if ($form->shouldStore()) {
+            $submission->save();
+        }
 
         // Emit an event after the submission has been created.
         $this->emitEvent('submission.created', $submission);

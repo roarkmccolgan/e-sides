@@ -15,9 +15,13 @@ fields:
     type: assets
     display: Main Image
     container: main
-    folder: /
+    folder: newsevents/headings
     restrict: true
     max_files: 1
+  event:
+    type: toggle
+    display: Event
+    default: 'false'
   news_event:
     type: replicator
     display: News Event
@@ -53,3 +57,5 @@ fields:
           external_link:
             type: text
             display: External URL
+    show_when:
+      event: true

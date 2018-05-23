@@ -2,7 +2,11 @@
 
 namespace Statamic\Updater;
 
+use Statamic\API\Cache;
+use Statamic\API\Folder;
 use Illuminate\Console\Command;
+use Statamic\Events\StatamicUpdated;
+use Illuminate\Support\Facades\Artisan;
 
 class Housekeeper
 {
@@ -15,6 +19,7 @@ class Housekeeper
         Updates\MigrateAssets::class,
         Updates\MigrateTaxonomies::class,
         Updates\MigrateTaxonomyFields::class,
+        Updates\AddViewPermissions::class,
     ];
 
     /**
@@ -55,7 +60,12 @@ class Housekeeper
             $update->update();
         }
 
+        Folder::delete(temp_path('update-unzipped'));
+        Cache::clear();
+        Artisan::call('view:clear');
+
         // Fire an event for devs etc.
-        event('system.updated');
+        event(new StatamicUpdated($version, $previousVersion));
+        event('system.updated'); // @todo deprecated
     }
 }

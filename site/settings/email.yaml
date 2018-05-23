@@ -1,6 +1,6 @@
 driver: mailgun
 from_email: webmaster@e-sides.eu
-from_name: Website Administrator
+from_name: e-Sides Website Administrator
 port: 587
 encryption: tls
 username: ""

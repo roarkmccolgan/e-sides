@@ -16,12 +16,6 @@
 					</div>
 				</div>
 			</div>
-			<!-- <div class="pos-absolute pos-bottom col-xs-12 text-center">
-				<div class="article__author">
-					<img alt="Image" src="{{ avatar:0 }}">
-					<h6 class="type--uppercase">{{ author }}</h6>
-				</div>
-			</div> -->
 		</div>
 		
 		<div>
@@ -264,6 +258,7 @@
     </div>
     <!--end of container-->
 </section>
+
 <section class="bg--dark">
 	<div class="container">
 		<div class="row">
@@ -280,7 +275,7 @@
 							1st January 2017
 						</h4>
 					</div>
-					<div class="process__item active_phase boxed boxed--border  bg--secondary boxed--lg box-shadow">
+					<div class="process__item">
 						<h4>
 							Phase 1<br/>
 							January 2017 - December 2017
@@ -293,23 +288,19 @@
                                         Webinars
                                     </div>
                                     <div class="tab__content">
-									{{ collection:media as="media_items" taxonomy:media="webinars" taxonomy:phase="phase-1" }}
-										{{ if media_items}}
+									{{ collection:resources as="media_items" taxonomy:resource-type="webinars" taxonomy:phase="phase-1" }}
+										
 										<ul>
 										{{ media_items }}
 											<li>
                                         		<i class="material-icons">play_circle_outline</i>
                                         		<span>{{ title }}</span>
-                                        		<a class="btn btn--sm pull-right" href="{{ url }}" style="">View</a>                           
+                                        		<a class="btn btn--sm" href="{{ url }}" style="">View</a>                           
 											</li>
 										{{ /media_items }}
 										</ul>
-										{{ else }}
-										<p>
-                                    		No webinars listed, please check back regularly for content.
-                                    	</p>
-										{{ /if }}
-									{{ /collection:media }}
+										
+									{{ /collection:resources }}
                                     </div>
                                 </li>
                                 <li>
@@ -318,23 +309,19 @@
                                         Reports
                                     </div>
                                     <div class="tab__content">
-                                    {{ collection:media as="media_items" taxonomy:media="public-reports" taxonomy:phase="phase-1" }}
-										{{ if media_items}}
+                                    {{ collection:resources as="media_items" taxonomy:resource-type="public-reports" taxonomy:phase="phase-1" }}
+										
 										<ul>
 										{{ media_items }}
 											<li>
                                         		<i class="material-icons">insert_drive_file</i>
                                         		<span>{{ title }}</span>
-                                        		<a class="btn btn--sm pull-right" href="{{ url }}" style="">View</a>                           
+                                        		<a class="btn btn--sm" href="{{ url }}" style="">View</a>                           
 											</li>
 										{{ /media_items }}
 										</ul>
-										{{ else }}
-										<p>
-                                    		No Public Reports listed, please check back regularly for content.
-                                    	</p>
-										{{ /if }}
-									{{ /collection:media }}
+										
+									{{ /collection:resources }}
                                     </div>
                                 </li>
                                 <li>
@@ -343,31 +330,94 @@
                                         Events
                                     </div>
                                     <div class="tab__content">
-                                    {{ collection:news_events as="event_items" }}
-										{{ event_items }}
-											{{ if news_event }}
-		                                    	<ul>
-		                                    	{{ news_event }}
-		                                    	{{ if type == "event" }}
-													<li>
-		                                        		<i class="material-icons">{{ type }}</i>
-		                                        		<span>{{ title }}</span>
-		                                        		<a class="btn btn--sm pull-right" href="{{ if external_link }} {{ external_link }} {{ else }} {{ url }} {{ /if }}" style="">View</a>         
-													</li>
-												{{ /if }}
-												{{ /news_event }}
-												</ul>
-											{{ /if }}
-										{{ /event_items }}
+                                    
+									<ul>
+									{{ collection:news_events taxonomy:phase="phase-1" }}
+										{{ news_event }}
+	                                    	<li>
+                                        		<i class="material-icons">{{ type }}</i>
+                                        		<span>{{ title }}</span>
+                                        		<a class="btn btn--sm" href="{{ url }}" style="">View</a>     
+                                        		
+											</li>
+										{{ /news_event }}
 									{{ /collection:news_events }}
+									</ul>
                                     </div>
                                 </li>
                             </ul>
                         </div>
 					</div>
-					<div class="process__item">
+					<div class="process__item active_phase boxed boxed--border  bg--secondary boxed--lg box-shadow">
 						<h4>Phase 2<br>
 						January 2018 - December 2018</h4>
+						<div class="tabs-container" data-content-align="left">
+                            <ul class="tabs">
+                                <li class="active">
+                                    <div class="tab__title text-center">
+                                        <i class="material-icons">videocam</i><br/>
+                                        Webinars
+                                    </div>
+                                    <div class="tab__content">
+									{{ collection:resources as="media_items" taxonomy:resource-type="webinars" taxonomy:phase="phase-2" }}
+										
+										<ul>
+										{{ media_items }}
+											<li>
+                                        		<i class="material-icons">play_circle_outline</i>
+                                        		<span>{{ title }}</span>
+                                        		<a class="btn btn--sm" href="{{ url }}" style="">View</a>                           
+											</li>
+										{{ /media_items }}
+										</ul>
+										
+									{{ /collection:resources }}
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="tab__title text-center">
+                                        <i class="material-icons">folder</i><br/>
+                                        Reports
+                                    </div>
+                                    <div class="tab__content">
+                                    {{ collection:resources as="media_items" taxonomy:resource-type="public-reports" taxonomy:phase="phase-2" }}
+										
+										<ul>
+										{{ media_items }}
+											<li>
+                                        		<i class="material-icons">insert_drive_file</i>
+                                        		<span>{{ title }}</span>
+                                        		<a class="btn btn--sm" href="{{ url }}" style="">View</a>                           
+											</li>
+										{{ /media_items }}
+										</ul>
+										
+									{{ /collection:resources }}
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="tab__title text-center">
+                                        <i class="material-icons">event_available</i><br/>
+                                        Events
+                                    </div>
+                                    <div class="tab__content">
+                                    
+									<ul>
+									{{ collection:news_events taxonomy:phase="phase-2" }}
+										{{ news_event }}
+	                                    	<li>
+                                        		<i class="material-icons">{{ type }}</i>
+                                        		<span>{{ title }}</span>
+                                        		<a class="btn btn--sm" href="{{ url }}" style="">View</a>     
+                                        		
+											</li>
+										{{ /news_event }}
+									{{ /collection:news_events }}
+									</ul>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
 					</div>
 					<div class="process__item">
 						<h4>Phase 3<br>
@@ -382,6 +432,156 @@
 		</div>
 	</div>
 </section>
+<section class="text-center bg--dark">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-10 col-md-8 col-md-offset-2">
+                <div class="row">
+                	<div class="col-sm-12">
+                		<h2>
+							Project Partners
+						</h2>
+                	</div>
+                    <div class="col-sm-4">
+                    	<div class="modal-instance">
+							<a class="modal-trigger partners mb--1" href="#">
+                        		<img class="spinning" src="{{ theme:asset src="img/idclogo.png" }}" alt="">
+                        	</a>
+                        	IDC ITALIA
+	                        <div class="modal-container">
+								<div class="modal-content">
+                                    <section class="unpad ">
+                                        <div class="container">
+                                            <div class="row">
+                                                <div class="col-sm-6 col-md-offset-3 col-sm-offset-3 col-xs-12">
+                                                    <div class="feature feature-1 text-left">
+                                                        <img alt="Image" src="{{ theme:asset src="img/idclogo.png" }}" />
+                                                        <div class="feature__body boxed boxed--lg boxed--border">
+                                                            <div class="modal-close modal-close-cross"></div>
+                                                            <div class="text-block">
+                                                                <h3>IDC Italia</h3>
+                                                                <p class="leading">
+																	IDC Italia is the coordinator of e-SIDES project, and leads the stakeholders’ engagement, communication, dissemination and exploitation activities leveraging its analysts’ continuous engagement with the ICT industry as well as IDC Conference and Events group.
+																</p>
+																<p>
+																	IDC is part of IDC (International Data Corporation) - the premier global provider of market intelligence, advisory services, IT events, telecommunications, and consumer technology market research, with over 1,100 analysts across the world. IDC's Foundation Research is based on approximately 300,000 interviews per year to ICT enterprise users or suppliers, leveraging a number of research tools, including: IDC's trackers, IDC's software market forecaster database, IDC's services spending model, the IDC Worldwide Digital Marketplace Model and Forecast, and the IDC Worldwide Black Book.
+																</p>	
+																<p>
+																	IDC’s participation in e-SIDES is led by <strong>IDC’s European Government Consulting Unit (EGC)</strong>. The European Government Consulting unit provides research and consulting services to governments and policy makers on the development of ICT-based innovation and ICT-based competitiveness in the economy and society.
+																</p>
+                                                            </div>
+                                                            <a class="btn btn--primary type--uppercase" href="http://idcitalia.com/ita/" target="_blank">
+                                                            	<span class="btn__text">IDC Italia</span>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    <!--end feature-->
+                                                </div>
+                                            </div>
+                                            <!--end of row-->
+                                        </div>
+                                        <!--end of container-->
+                                    </section>
+                                </div>
+							</div>
+						</div><!--end of modal instance-->
+                    </div>
+                    <div class="col-sm-4">
+                    	<div class="modal-instance">
+							<a class="modal-trigger partners mb--1" href="#">
+                    			<img class="spinning" src="{{ theme:asset src="img/fraunhofer_logo.png" }}" alt="">
+                    		</a>
+                    		Fraunhofer ISI
+	                    	<div class="modal-container">
+								<div class="modal-content">
+                                    <section class="unpad ">
+                                        <div class="container">
+                                            <div class="row">
+                                                <div class="col-sm-6 col-md-offset-3 col-sm-offset-3 col-xs-12">
+                                                    <div class="feature feature-1  text-left">
+                                                        <img alt="Image" src="{{ theme:asset src="img/fraunhofer_logo.png" }}" />
+                                                        <div class="feature__body boxed boxed--lg boxed--border">
+                                                            <div class="modal-close modal-close-cross"></div>
+                                                            <div class="text-block">
+                                                                <h3>Fraunhofer ISI</h3>
+                                                                <p class="leading">
+																	<strong>Fraunhofer ISI, Institute for Systems and Innovation Research</strong>, leads the societal and economic research and analysis. In particular, it focuses on the activities related to the review of existing technologies as well as to the activities pertaining to the design of requirements for new technologies.
+																</p>
+																<p>
+																	The <strong>Fraunhofer-Gesellschaft</strong> is the leading organization for applied research in Europe. Its research activities are conducted by 67 institutes and research units at locations throughout Germany. International collaborations with excellent research partners and innovative companies around the world ensure direct access to regions of the greatest importance to present and future scientific progress and economic development.
+																</p>	
+																<p>
+																	The Fraunhofer Institute, IS,I analyzes the origins and impacts of innovations. We research the short- and long-term developments of innovation processes and the impacts of new technologies and services on society. On this basis, we are able to provide our clients from industry, politics and science with recommendations for action and perspectives for key decisions. Our expertise is founded on our scientific competence as well as an interdisciplinary and systemic research approach. Today, Fraunhofer ISI employs about 240 staff members, among them scientists from the fields of natural sciences, engineering, economics and social sciences who each year work on about 370 research projects.
+																</p>
+                                                            </div>
+                                                            <a class="btn btn--primary type--uppercase" href="http://www.isi.fraunhofer.de/isi-en/index.php" target="_blank">
+                                                            	<span class="btn__text">Fraunhofer ISI</span>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    <!--end feature-->
+                                                </div>
+                                            </div>
+                                            <!--end of row-->
+                                        </div>
+                                        <!--end of container-->
+                                    </section>
+                                </div>
+							</div>
+						</div><!--end of modal instance-->
+                    </div>
+                    <div class="col-sm-4">
+                    	<div class="modal-instance">
+							<a class="modal-trigger partners mb--1" href="#">
+                    			<img class="spinning" src="{{ theme:asset src="img/elaw_logo.png" }}" alt="">
+                    		</a>
+                    		ELAW
+	                    	<div class="modal-container">
+								<div class="modal-content">
+                                        <section class="unpad ">
+                                            <div class="container">
+                                                <div class="row">
+                                                    <div class="col-sm-6 col-md-offset-3 col-sm-offset-3 col-xs-12">
+                                                        <div class="feature feature-1 text-left">
+                                                            <img alt="Image" src="{{ theme:asset src="img/elaw_logo.png" }}" />
+                                                            <div class="feature__body boxed boxed--lg boxed--border">
+                                                            <div class="modal-close modal-close-cross"></div>
+                                                            <div class="text-block">
+                                                                <h3>eLAW</h3>
+                                                                <p class="leading">
+																	<strong>ELAW</strong>, Leiden Law School’s Centre for Law and Digital Technologies, leads the research and analysis related to ethical and privacy issues and contribute on legal and ethical issues. In particular, ELAW focuses on the activities providing a starting research point and establishing common ground to further analyse ethical, legal, social and economic issues. It also leads the activities conducting to the validation of the emerging privacy-preserving technologies.
+																</p>
+																<p>
+																	<strong>Leiden University</strong> is one of Europe's oldest and foremost research universities. It was founded in 1575 and is a member of the League of European Research Universities. Leiden Law School, which is one of the oldest faculties in this university, combines a high level of academic teaching with acclaimed and innovative research.
+																</p>	
+																<p>
+																	<strong>ELAW</strong>, Leiden Law School’s Centre for Law and Digital Technologies, is a multi-disciplinary institute that brings together a unique set of expertise on the legal, philosophical and social implications of the information society. eLaw conducts fundamental and applied research on the legal, social and technological regulation of the Internet and other technologies. The core of eLaw research focuses on the rule of law in the information society by studying fundamental rights and principles in a number of specific, often interrelated, domains across the legal areas of private law, criminal law, administrative law, privacy and data protection law, youth law, IP (copyright and patent) law, media law, telecommunications law, and procurement law.
+																</p>
+                                                            </div>
+                                                            <a class="btn btn--primary type--uppercase" href="https://www.universiteitleiden.nl/en/law/institute-for-the-interdisciplinary-study-of-the-law/elaw" target="_blank">
+                                                            	<span class="btn__text">eLAW</span>
+                                                            </a>
+                                                        </div>
+                                                        </div>
+                                                        <!--end feature-->
+                                                    </div>
+                                                </div>
+                                                <!--end of row-->
+                                            </div>
+                                            <!--end of container-->
+                                        </section>
+                                    </div>
+							</div>
+						</div><!--end of modal instance-->
+                    </div>
+                </div>
+                <!--end of row-->
+            </div>
+        </div>
+        <!--end of row-->
+    </div>
+    <!--end of container-->
+</section>
 <section class="bg--dark share">
 	<article>
 		<div>
@@ -389,13 +589,13 @@
 				<div class="row">
 					<div class="col-sm-10 col-md-8 col-sm-offset-1 col-md-offset-2">
 						<div class="article__share text-center">
-							<a class="btn bg--facebook btn--icon" href="https://www.facebook.com/sharer/sharer.php?u=http%3A//e-sides.eu/e-sides-project" target="_blank">
+							<a class="btn bg--twitter btn--icon" href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A//e-sides.eu/e-sides-project&title=s-Sides%20Project&summary=e-SIDES%20is%20an%20EU-funded%20Coordination%20and%20Support%20Action%20(CSA)%20that%20will%20complement%20the%20Research%20and%20Innovation%20Actions%20(RIAs)%20of%20the%20ICT-18%20call%20on%20privacy-preserving%20big%20data%20technologies%20by%20exploring%20the%20societal%20and%20ethical%20implications%20of%20big%20data%20technologies%20and%20providing%20a%20broad%20basis%20and%20wider%20context%20to%20validate%20privacy-preserving%20technologies.&source=" target="_blank">
 								<span class="btn__text">
 									<i class="socicon socicon-linkedin"></i>
 									Share on LinkedIn
 								</span>
 							</a>
-							<a class="btn bg--twitter btn--icon" href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A//e-sides.eu/e-sides-project&title=s-Sides%20Project&summary=e-SIDES%20is%20an%20EU-funded%20Coordination%20and%20Support%20Action%20(CSA)%20that%20will%20complement%20the%20Research%20and%20Innovation%20Actions%20(RIAs)%20of%20the%20ICT-18%20call%20on%20privacy-preserving%20big%20data%20technologies%20by%20exploring%20the%20societal%20and%20ethical%20implications%20of%20big%20data%20technologies%20and%20providing%20a%20broad%20basis%20and%20wider%20context%20to%20validate%20privacy-preserving%20technologies.&source=" target="_blank">
+							<a class="btn bg--twitter btn--icon" href="https://twitter.com/home?status=%40eSIDES_eu%20%23bigdata%20%23bigdatatechnologies%20%23H2020.%20http%3A//bit.ly/2tRfppR" target="_blank">
 								<span class="btn__text">
 									<i class="socicon socicon-twitter"></i>
 									Share on Twitter
@@ -441,6 +641,12 @@ $(function() {
 		delay: 500,
 		duration: 1000,
 	});
+
+	sr.reveal('.partners',{
+		origin: 'bottom',
+		scale: .1,
+		distance: '50px'
+	},500);
 
 	sr.reveal('.flip-container',{
 

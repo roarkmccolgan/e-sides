@@ -15,7 +15,13 @@
 <script>
 module.exports = {
 
-    props: ['name', 'data', 'config'],
+    mixins: [Fieldtype],
+
+    data() {
+        return {
+            autoBindChangeWatcher: false
+        };
+    },
 
     ready: function() {
         if (typeof this.config === 'string') {
@@ -25,6 +31,23 @@ module.exports = {
         if ( ! this.data) {
             this.data = [];
         }
+
+        this.bindChangeWatcher();
+    },
+
+    methods: {
+
+        focus() {
+            document.getElementById(`${this.name}-0`).focus();
+        },
+
+        getReplicatorPreviewText() {
+            return this.data.map(item => {
+                var option = _.findWhere(this.config.options, {value: item});
+                return (option) ? option.text : item;
+            }).join(', ');
+        },
+
     }
 };
 </script>

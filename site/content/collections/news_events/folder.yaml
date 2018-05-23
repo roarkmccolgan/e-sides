@@ -1,3 +1,4 @@
 title: News and Events
+order: date
 fieldset: test_replicator
 template: newsevents/newsevent

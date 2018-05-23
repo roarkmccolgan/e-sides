@@ -1,0 +1,13 @@
+taxonomies: false
+title: Open Doc
+create_title: ""
+fields:
+  is_hidden:
+    type: toggle
+    display: Hide From Menu
+  description:
+    type: text
+    display: Summary
+  doc_url:
+    type: text
+    display: Open Doc URL

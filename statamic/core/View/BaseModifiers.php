@@ -93,6 +93,21 @@ class BaseModifiers extends Modifier
     }
 
     /**
+     * Returns a focal point as a background-position CSS value.
+     *
+     * @param $value
+     * @return string
+     */
+    public function backgroundPosition($value)
+    {
+        if (! Str::contains($value, '-')) {
+            return $value;
+        }
+
+        return vsprintf('%d%% %d%%', explode('-', $value));
+    }
+
+    /**
      * Removes a given number ($param[0]) of characters from the end of a variable
      *
      * @param $value
@@ -426,6 +441,18 @@ class BaseModifiers extends Modifier
     }
 
     /**
+     * Returns the file extension of a given filename.
+     *
+     * @param $value
+     * @param $params
+     * @return string
+     */
+    public function extension($value, $params)
+    {
+        return pathinfo($value, PATHINFO_EXTENSION);
+    }
+
+    /**
      * Generate a link to a Favicon file.
      *
      * @param $value
@@ -681,9 +708,13 @@ class BaseModifiers extends Modifier
      */
     public function inArray($value, $params, $context)
     {
-        $array = array_get($context, $params[0], $params);
+        $needle = array_get($context, $params[0], $params);
 
-        return in_array($value, $array);
+        if (is_array($needle) && count($needle) === 1) {
+            $needle = $needle[0];
+        }
+
+        return in_array($needle, $value);
     }
 
     /**
@@ -1289,7 +1320,7 @@ class BaseModifiers extends Modifier
      */
     public function readTime($value, $params)
     {
-        $words = str_word_count(strip_tags($value));
+        $words = mb_str_word_count(strip_tags($value));
 
         return ceil($words / array_get($params, 0, 200));
     }
@@ -1587,7 +1618,28 @@ class BaseModifiers extends Modifier
             return $this->shuffle($value);
         }
 
+        // Using sort="true" will allow primitive arrays to be sorted.
+        if ($key === 'true') {
+            natcasesort($value);
+            return $is_descending ? $this->reverse($value) : $value;
+        }
+
         return collect($value)->sortBy($key, SORT_REGULAR, $is_descending)->values()->toArray();
+    }
+
+    /**
+     * Strip whitespace from HTML
+     *
+     * @param $value
+     * @param $params
+     * @return string
+     */
+    public function spaceless($value, $params)
+    {
+        $nolb = str_replace(array("\r", "\n"), '', $value);
+        $nospaces = preg_replace('/\s+/', ' ', $nolb);
+
+        return preg_replace('/>\s+</', '><', $nospaces);
     }
 
     /**
@@ -1982,9 +2034,17 @@ class BaseModifiers extends Modifier
      */
     public function wrap($value, $params)
     {
+        $attributes = '';
         $tag = array_get($params, 0);
 
-        return "<$tag>$value</$tag>";
+        // Emmet-esque classes
+        // You may specify "tag.class.class.class" etc.
+        if (Str::contains($tag, '.')) {
+            list($tag, $classes) = explode('.', $tag, 2);
+            $attributes = sprintf(' class="%s"', str_replace('.', ' ', $classes));
+        }
+
+        return "<{$tag}{$attributes}>$value</$tag>";
     }
 
     /**
@@ -1995,7 +2055,7 @@ class BaseModifiers extends Modifier
      */
     public function wordCount($value)
     {
-        return str_word_count($value);
+        return mb_str_word_count($value);
     }
 
     /**
@@ -2009,6 +2069,42 @@ class BaseModifiers extends Modifier
     public function yearsAgo($value, $params)
     {
         return carbon($value)->diffInYears(array_get($params, 0));
+    }
+
+    /**
+     * Get the embed URL when given a youtube or vimeo link that's
+     * direct to the page.
+     *
+     * @param string  $url
+     *
+     * @return string
+     */
+    public function embedUrl($url)
+    {
+        if (str_contains($url, 'youtube')) {
+            return str_replace('watch?v=', 'embed/', $url);
+        }
+
+        if (str_contains($url, 'youtu.be')) {
+            return str_replace('youtu.be', 'www.youtube.com/embed', $url);
+        }
+
+        if (str_contains($url, 'vimeo')) {
+            return str_replace('/vimeo.com', '/player.vimeo.com/video', $url);
+        }
+
+        return $url;
+    }
+
+    /**
+     * Whether a given video URL is embeddable.
+     *
+     * @param string $url
+     * @return bool
+     */
+    public function isEmbeddable($url)
+    {
+        return Str::contains($url, ['youtube', 'vimeo', 'youtu.be']);
     }
 
     // ------------------------------------

@@ -11,7 +11,7 @@
 <section class="bg--dark">
 	<div class="container">
 		<div class="row">
-			{{ collection:articles taxonomy="true" paginate="true" as="posts" limit="10" }}
+			{{ collection:news_events taxonomy="true" paginate="true" as="posts" limit="10" }}
 
 				{{ if no_results }}
 					<p>No "{{ title }}" posts.</p>
@@ -23,7 +23,7 @@
 					</div>
 				{{ /posts }}
 			{{ partial:pagination }}
-			{{ /collection:articles }}
+			{{ /collection:news_events }}
 		</div>
 	</div>
 </section>

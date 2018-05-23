@@ -1,4 +1,5 @@
 var $ = require('jquery');
+window.MediumEditor = require('medium-editor');
 
 global.cp_url = function(url) {
     url = Statamic.cpRoot + '/' + url;
@@ -37,6 +38,12 @@ global.dd = function(args) {
     console.log(args);
 };
 
+global.data_get = function(obj, key) {
+    return key.split(".").reduce(function(o, x) {
+        return (typeof o == "undefined" || o === null) ? o : o[x];
+    }, obj);
+};
+
 global.Cookies = require('cookies-js');
 
 // String.includes() polyfill.
@@ -57,12 +64,3 @@ if (!String.prototype.includes) {
 }
 
 require('./l10n/l10n');
-require('./vendor/sticky');
-
-$(document).ready(function(){
-	$(".sticky").sticky({
-		topSpacing: 0,
-		className: 'stuck',
-		widthFromWrapper: false
-	});
-});

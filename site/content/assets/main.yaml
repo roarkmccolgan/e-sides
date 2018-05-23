@@ -1,3 +1,10 @@
 title: Main Assets
 path: assets
 url: /assets
+assets:
+  ethics.gif:
+    focus: 50-49
+  d29ca51b3f319a7f15e9044863af1970-1510998869.jpg:
+    focus: 43-98
+  media/e-SIDES D3.1 V1.0.pdf:
+    title: Deliverable 3.1 Overview of Existing Technologies

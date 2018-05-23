@@ -7,12 +7,9 @@ Route::group(['prefix' => CP_ROUTE . '/auth'], function () {
     get('login', 'Auth\AuthController@getLogin')->name('login');
     post('login', 'Auth\AuthController@postLogin');
     get('logout', 'Auth\AuthController@getLogout')->name('logout');
+    get('login/reset', 'Auth\AuthController@getPasswordReset')->name('login.reset');
+    post('login/reset', 'Auth\AuthController@postPasswordReset');
 });
-
-/**
- * Control Panel License Key Entry
- */
-post(CP_ROUTE . '/license-key', 'SettingsController@licenseKey')->name('license-key');
 
 /**
  * The Control Panel
@@ -22,6 +19,10 @@ Route::group(['prefix' => CP_ROUTE, 'middleware' => ['auth']], function () {
 
     // Dashboard
     get('dashboard', 'DashboardController@index')->name('dashboard');
+
+    get('licensing', 'LicensingController@index')->name('licensing');
+    get('licensing/refresh', 'LicensingController@refresh')->name('licensing.refresh');
+    post('licensing', 'LicensingController@update')->name('licensing.update');
 
     // Content
     get('content', 'PagesController@index')->name('content');
@@ -38,6 +39,7 @@ Route::group(['prefix' => CP_ROUTE, 'middleware' => ['auth']], function () {
         get('edit/{url?}', ['uses' => 'PublishPageController@edit', 'as' => 'page.edit'])->where('url', '.*');
 
         post('mount', ['uses' => 'PagesController@mountCollection', 'as' => 'page.mount']);
+        post('duplicate', 'DuplicatePageController@store');
     });
 
     // Collections
@@ -51,9 +53,11 @@ Route::group(['prefix' => CP_ROUTE, 'middleware' => ['auth']], function () {
         get('/', 'EntriesController@index')->name('entries');
         delete('delete', 'EntriesController@delete')->name('entries.delete');
         get('/{collection}/get', 'EntriesController@get')->name('entries.get');
+        get('/{collection}/search', 'EntriesSearchController@search')->name('entries.search');
         post('reorder', 'EntriesController@reorder')->name('entries.reorder');
 
         get('/{collection}/create', 'PublishEntryController@create')->name('entry.create');
+        post('/{collection}/duplicate', 'DuplicateEntryController@store')->name('entry.duplicate');
         get('/{collection}/{slug}', ['uses' => 'PublishEntryController@edit', 'as' => 'entry.edit']);
         post('publish', 'PublishEntryController@save')->name('entry.save');
 
@@ -112,14 +116,14 @@ Route::group(['prefix' => CP_ROUTE, 'middleware' => ['auth']], function () {
                 '.*')->name('assets.folder.update');
         });
 
-        post('replace-edited-image', 'AssetsController@replaceEditedImage');
-        get('image-editor-auth', 'AssetsController@editorAuth');
+        get('thumbnails/{asset}/{size?}', 'AssetThumbnailController@show')->name('asset.thumbnail');
 
         post('get', 'AssetsController@get')->name('assets.get');
         delete('delete', 'AssetsController@delete')->name('asset.delete');
         get('browse/{container}/{folder?}', 'AssetsController@browse')->where('folder',
             '.*')->name('assets.browse');
         post('browse', 'AssetsController@json');
+        post('search', 'AssetsController@search');
         post('/', 'AssetsController@store')->name('asset.store');
         get('download/{container}/{path}', 'AssetsController@download')->name('asset.download')->where('path', '.*');
         post('rename/{container}/{path}', 'AssetsController@rename')->name('asset.rename')->where('path', '.*');
@@ -239,9 +243,6 @@ Route::group(['prefix' => CP_ROUTE, 'middleware' => ['auth']], function () {
 
     // Settings
     Route::group(['prefix' => 'settings', 'middleware' => 'configurable'], function () {
-        get('search', 'SearchSettingsController@edit')->name('settings.search.edit');
-        post('search', 'SearchSettingsController@update')->name('settings.search.update');
-
         get('/', 'SettingsController@index')->name('settings');
         get('{name}', 'SettingsController@edit')->name('settings.edit');
         post('{name}', 'SettingsController@update')->name('settings.update');
@@ -254,7 +255,6 @@ Route::group(['prefix' => CP_ROUTE, 'middleware' => ['auth']], function () {
 
         Route::group(['middleware' => 'configurable'], function () {
             get('/', 'FieldsetController@index')->name('fieldsets');
-            get('/fieldtypes', 'FieldsetController@fieldtypes')->name('fieldsets.fieldtypes');
             get('/create', 'FieldsetController@create')->name('fieldset.create');
             post('/update-layout/{fieldset}', 'FieldsetController@updateLayout')->name('fieldset.update-layout');
             delete('delete', 'FieldsetController@delete')->name('fieldsets.delete');
@@ -264,6 +264,8 @@ Route::group(['prefix' => CP_ROUTE, 'middleware' => ['auth']], function () {
             post('/', 'FieldsetController@store')->name('fieldset.store');
         });
     });
+
+    get('fieldtypes', 'FieldtypesController@index')->name('fieldtypes');
 
     // Addons
     Route::group(['prefix' => 'configure/addons', 'middleware' => 'configurable'], function () {
@@ -301,6 +303,9 @@ Route::group(['prefix' => CP_ROUTE, 'middleware' => ['auth']], function () {
         get('perform', 'SearchController@search');
         get('update', 'SearchController@update');
     });
+
+    get('resolve-duplicate-ids', 'DuplicateIdController@index')->name('resolve-duplicate-ids');
+    post('resolve-duplicate-ids', 'DuplicateIdController@update')->name('resolve-duplicate-ids.update');
 
     // 404 - Any unrecognized /cp pages come here.
     get('{segments}', 'CpController@pageNotFound')->where('segments', '.*')->name('404');

@@ -3,7 +3,7 @@ locales:
   en:
     full: en_US
     name: English
-    url: http://dev.e-sides.eu/
+    url: http://e-sides.eu/
 timezone: UTC
 date_format: F jS, Y
 default_extension: md
